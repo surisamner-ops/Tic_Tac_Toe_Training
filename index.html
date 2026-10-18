@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Magic Quest: A mystical, educational Tic-Tac-Toe game where knowledge unlocks your moves.">
+  <title>Magic Quest: Tic-Tac-Toe</title>
+  <style>
+    /* =========================================
+       CSS VARIABLES & RESET
+       ========================================= */
+    :root {
+      --bg-deep: #0f0c29;
+      --bg-mid: #302b63;
+      --bg-light: #24243e;
+      --accent-primary: #ff6b9d;
+      --accent-secondary: #7b68ee;
+      --accent-gold: #ffd93d;
+      --success: #00d9a5;
+      --error: #ff6b6b;
+      --text-primary: #ffffff;
+      --text-secondary: #e0e0e0;
+      --glass-bg: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.15);
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      --radius: 16px;
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-size: 16px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, var(--bg-deep), var(--bg-mid), var(--bg-light));
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* =========================================
+       ANIMATED BACKGROUND
+       ========================================= */
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    #starfield {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle var(--duration) ease-in-out infinite;
+      opacity: 0;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0; transform: scale(0.5); }
+      50% { opacity: var(--max-opacity); transform: scale(1); }
+    }
+
+    /* =========================================
+       GLASSMORPHISM & LAYOUT
+       ========================================= */
+    .glass-panel {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      box-shadow: var(--glass-shadow);
+      position: relative;
+      z-index: 10;
+    }
+
+    main {
+      width: 100%;
+      max-width: 480px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: clamp(1.5rem, 5vw, 2rem);
+      background: linear-gradient(to right, var(--accent-primary), var(--accent-gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .icon-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--glass-border);
+      color: var(--text-primary);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .icon-btn:hover, .icon-btn:focus-visible {
+      background: var(--accent-secondary);
+      transform: translateY(-2px);
+      outline: 2px solid var(--accent-gold);
+      outline-offset: 2px;
+    }
+
+    /* =========================================
+       SCORE BOARD & INDICATORS
+       ========================================= */
+    .score-board {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.5rem;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .score-item {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 0.75rem 0.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--glass-border);
+    }
+
+    .score-value {
+      display: block;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent-gold);
+      margin-top: 0.25rem;
+    }
+
+    .turn-indicator {
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--accent-primary);
+      min-height: 1.5rem;
+      transition: var(--transition);
+    }
+
+    /* =========================================
+       GAME BOARD
+       ========================================= */
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+      aspect-ratio: 1;
+      width: 100%;
+    }
+
+    .cell {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid var(--glass-border);
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: clamp(2rem, 8vw, 3rem);
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+      user-select: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cell:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+      border-color: var(--accent-secondary);
+    }
+
+    .cell:focus-visible {
+      outline: 3px solid var(--accent-gold);
+      outline-offset: -3px;
+    }
+
+    .cell:disabled {
+      cursor: default;
+      opacity: 0.8;
+    }
+
+    .cell.p1 { color: var(--accent-primary); text-shadow: 0 0 10px rgba(255, 107, 157, 0.5); }
+    .cell.p2 { color: var(--accent-secondary); text-shadow: 0 0 10px rgba(123, 104, 238, 0.5); }
+
+    .cell.pop-in {
+      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* =========================================
+       CONTROLS
+       ========================================= */
+    .controls {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 0.875rem 1rem;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+      color: white;
+      box-shadow: 0 4px 15px rgba(123, 104, 238, 0.3);
+    }
+
+    .btn:hover, .btn:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(123, 104, 238, 0.5);
+      outline: 2px solid var(--accent-gold);
+      outline-offset: 2px;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: none;
+      border: 1px solid var(--glass-border);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* =========================================
+       MODALS / DIALOGS
+       ========================================= */
+    dialog {
+      background: var(--bg-mid);
+      color: var(--text-primary);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 0;
+      max-width: 90vw;
+      width: 400px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    dialog::backdrop {
+      background: rgba(15, 12, 41, 0.8);
+      backdrop-filter: blur(4px);
+    }
+
+    @keyframes modalSlideIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-header {
+      padding: 1.25rem;
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      font-size: 1.25rem;
+      color: var(--accent-gold);
+    }
+
+    .modal-body {
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.5rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .close-btn:hover { color: var(--error); }
+
+    /* Settings Form */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-group label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    select, .toggle-row {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid var(--glass-border);
+      background: rgba(0, 0, 0, 0.2);
+      color: var(--text-primary);
+      font-size: 1rem;
+    }
+
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 48px;
+      height: 26px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 13px;
+      transition: var(--transition);
+    }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: var(--transition);
+    }
+
+    input[type="checkbox"]:checked + .toggle-switch {
+      background: var(--success);
+    }
+
+    input[type="checkbox"]:checked + .toggle-switch::after {
+      transform: translateX(22px);
+    }
+
+    input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    /* Quiz Modal */
+    .quiz-question {
+      font-size: 1.1rem;
+      font-weight: 600;
+      line-height: 1.4;
+      margin-bottom: 0.5rem;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .quiz-option {
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid var(--glass-border);
+      border-radius: 10px;
+      color: var(--text-primary);
+      text-align: left;
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 1rem;
+    }
+
+    .quiz-option:hover:not(:disabled) {
+      background: rgba(123, 104, 238, 0.2);
+      border-color: var(--accent-secondary);
+    }
+
+    .quiz-option.correct {
+      background: rgba(0, 217, 165, 0.2);
+      border-color: var(--success);
+      color: var(--success);
+    }
+
+    .quiz-option.incorrect {
+      background: rgba(255, 107, 107, 0.2);
+      border-color: var(--error);
+      color: var(--error);
+    }
+
+    .quiz-option:disabled {
+      cursor: default;
+      opacity: 0.7;
+    }
+
+    .feedback-msg {
+      text-align: center;
+      font-weight: 600;
+      min-height: 1.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .feedback-msg.success { color: var(--success); }
+    .feedback-msg.error { color: var(--error); }
+
+    .attempts-indicator {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-top: 0.5rem;
+    }
+
+    /* Victory Modal */
+    .victory-content {
+      text-align: center;
+      padding: 2rem 1.5rem;
+    }
+
+    .victory-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      animation: bounce 1s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .victory-title {
+      font-size: 1.75rem;
+      color: var(--accent-gold);
+      margin-bottom: 0.5rem;
+    }
+
+    .victory-message {
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+
+    /* Confetti */
+    .confetti {
+      position: fixed;
+      top: -10px;
+      width: 10px;
+      height: 10px;
+      z-index: 9999;
+      pointer-events: none;
+      animation: fall linear forwards;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(100vh) translateX(var(--x)) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    /* =========================================
+       ACCESSIBILITY & REDUCED MOTION
+       ========================================= */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .star { display: none; }
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 360px) {
+      main { padding: 1rem; }
+      .score-board { font-size: 0.8rem; }
+      .score-value { font-size: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="starfield" aria-hidden="true"></div>
+
+  <main class="glass-panel">
+    <header>
+      <h1>✨ Magic Quest</h1>
+      <button id="settingsBtn" class="icon-btn" aria-label="Open Settings">⚙️</button>
+    </header>
+
+    <div class="score-board" role="region" aria-label="Score Board">
+      <div class="score-item">
+        <span id="labelP1">Player 1</span>
+        <span class="score-value" id="scoreP1">0</span>
+      </div>
+      <div class="score-item">
+        <span>Draws</span>
+        <span class="score-value" id="scoreDraw">0</span>
+      </div>
+      <div class="score-item">
+        <span id="labelP2">Player 2</span>
+        <span class="score-value" id="scoreP2">0</span>
+      </div>
+    </div>
+
+    <div class="turn-indicator" id="turnIndicator" aria-live="polite">Player 1's Turn</div>
+
+    <div class="game-board" id="gameBoard" role="grid" aria-label="Tic Tac Toe Board">
+      <!-- Cells generated by JS -->
+    </div>
+
+    <div class="controls">
+      <button id="resetBtn" class="btn">New Game</button>
+      <button id="shareBtn" class="btn btn-secondary">Share Score</button>
+    </div>
+  </main>
+
+  <!-- Settings Dialog -->
+  <dialog id="settingsDialog" aria-labelledby="settingsTitle">
+    <div class="modal-header">
+      <h2 id="settingsTitle">Game Settings</h2>
+      <button class="close-btn" onclick="document.getElementById('settingsDialog').close()" aria-label="Close settings">&times;</button>
+    </div>
+    <div class="modal-body">
+      <label class="toggle-row">
+        <span>Quiz Gate (Answer to move)</span>
+        <input type="checkbox" id="settingQuiz" checked>
+        <span class="toggle-switch"></span>
+      </label>
+
+      <label class="toggle-row">
+        <span>Sound Effects</span>
+        <input type="checkbox" id="settingSound" checked>
+        <span class="toggle-switch"></span>
+      </label>
+
+      <div class="form-group">
+        <label for="settingGlyphs">Glyph Theme</label>
+        <select id="settingGlyphs">
+          <option value="Magic">Magic (✨ / 🌙)</option>
+          <option value="Standard">Standard (X / O)</option>
+          <option value="Knight">Knight (⚔️ / 🛡️)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="settingMode">Game Mode</label>
+        <select id="settingMode">
+          <option value="PvP">2 Players</option>
+          <option value="PvAI">Vs AI</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="aiDifficultyGroup">
+        <label for="settingDifficulty">AI Difficulty</label>
+        <select id="settingDifficulty">
+          <option value="Pragmatic">Pragmatic (Balanced)</option>
+          <option value="Perfect">Perfect (Unbeatable)</option>
+          <option value="Reckless">Reckless (Easy)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="settingStarter">Who Starts?</label>
+        <select id="settingStarter">
+          <option value="P1">Player 1</option>
+          <option value="P2">Player 2 / AI</option>
+        </select>
+      </div>
+
+      <button class="btn" onclick="saveSettings()">Save & Restart</button>
+      
+      <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
+        <button class="btn btn-secondary" onclick="exportSettings()" style="width: 100%; margin-bottom: 0.5rem;">Export Settings (JSON)</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()" style="width: 100%;">Import Settings</button>
+        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importSettings(this)">
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Quiz Dialog -->
+  <dialog id="quizDialog" aria-labelledby="quizTitle">
+    <div class="modal-header">
+      <h2 id="quizTitle">🔮 Knowledge Gate</h2>
+    </div>
+    <div class="modal-body">
+      <p class="quiz-question" id="quizQuestion">Loading question...</p>
+      <div class="quiz-options" id="quizOptions" role="radiogroup" aria-label="Quiz options">
+        <!-- Options injected by JS -->
+      </div>
+      <div class="feedback-msg" id="quizFeedback" aria-live="polite"></div>
+      <div class="attempts-indicator" id="quizAttempts">Attempts: 0 / 3</div>
+    </div>
+  </dialog>
+
+  <!-- Victory Dialog -->
+  <dialog id="victoryDialog" aria-labelledby="victoryTitle">
+    <div class="victory-content">
+      <div class="victory-icon" id="victoryIcon">🏆</div>
+      <h2 class="victory-title" id="victoryTitle">Victory!</h2>
+      <p class="victory-message" id="victoryMessage">Player 1 completes the quest!</p>
+      <button class="btn" onclick="closeVictoryAndReset()" style="width: 100%;">Play Again</button>
+    </div>
+  </dialog>
+
+  <script>
+    /* =========================================
+       QUESTION DATA & PARSER
+       ========================================= */
+    const rawQuizData = [
+      "What is the capital of France?,London,Berlin,Paris,3",
+      "Which planet is known as the Red Planet?,Venus,Mars,Jupiter,2",
+      "What is 2 + 2 × 2?,6,8,4,1",
+      "Who wrote 'Romeo and Juliet'?,Charles Dickens,William Shakespeare,Mark Twain,2",
+      "What is the chemical symbol for water?,H2O,CO2,O2,1",
+      "Which animal is known as the King of the Jungle?,Tiger,Lion,Elephant,2",
+      "What is the largest ocean on Earth?,Atlantic,Indian,Pacific,3",
+      "How many continents are there?,5,6,7,3",
+      "What gas do plants absorb from the atmosphere?,Oxygen,Carbon Dioxide,Nitrogen,2",
+      "In which year did the Titanic sink?,1912,1905,1920,1"
+    ];
+
+    function parseQuestion(str) {
+      const parts = str.split(',');
+      const correct = parseInt(parts.pop().trim(), 10);
+      const opt3 = parts.pop().trim();
+      const opt2 = parts.pop().trim();
+      const opt1 = parts.pop().trim();
+      const question = parts.join(',').trim(); // Handles commas in the question itself
+      return { question, options: [opt1, opt2, opt3], correct };
+    }
+
+    const questions = rawQuizData.map(parseQuestion);
+
+    /* =========================================
+       STATE MANAGEMENT
+       ========================================= */
+    const defaultState = {
+      board: Array(9).fill(null),
+      currentPlayer: 'P1',
+      scores: { P1: 0, P2: 0, Draw: 0 },
+      settings: {
+        quizEnabled: true,
+        muted: false,
+        glyphTheme: 'Magic',
+        gameMode: 'PvP',
+        aiDifficulty: 'Pragmatic',
+        startingPlayer: 'P1'
+      },
+      quizAttempts: 0,
+      currentQuestion: null,
+      pendingMove: null
+    };
+
+    let state = JSON.parse(JSON.stringify(defaultState));
+
+    const glyphs = {
+      Standard: { P1: 'X', P2: 'O' },
+      Magic: { P1: '✨', P2: '🌙' },
+      Knight: { P1: '⚔️', P2: '🛡️' }
+    };
+
+    /* =========================================
+       AUDIO SYSTEM (Web Audio API)
+       ========================================= */
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = new AudioContext();
+
+    function playSound(type) {
+      if (state.settings.muted) return;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      const now = audioCtx.currentTime;
+
+      if (type === 'correct') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, now);
+        osc.frequency.exponentialRampToValueAtTime(1046.5, now + 0.1);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      } else if (type === 'incorrect') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, now);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      } else if (type === 'win') {
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+          const o = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+          o.connect(g);
+          g.connect(audioCtx.destination);
+          o.type = 'triangle';
+          o.frequency.value = freq;
+          g.gain.setValueAtTime(0.1, now + i * 0.1);
+          g.gain.exponentialRampToValueAtTime(0.01, now + i * 0.1 + 0.4);
+          o.start(now + i * 0.1);
+          o.stop(now + i * 0.1 + 0.4);
+        });
+      } else if (type === 'click') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, now);
+        gain.gain.setValueAtTime(0.05, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      }
+    }
+
+    /* =========================================
+       INITIALIZATION & DOM
+       ========================================= */
+    function init() {
+      loadFromStorage();
+      generateStars();
+      renderBoard();
+      updateUI();
+      
+      if (state.settings.startingPlayer === 'P2' && state.settings.gameMode === 'PvAI') {
+        setTimeout(makeAIMove, 500);
+      }
+
+      document.getElementById('settingsBtn').addEventListener('click', () => {
+        document.getElementById('settingsDialog').showModal();
+        playSound('click');
+      });
+
+      document.getElementById('resetBtn').addEventListener('click', () => {
+        resetGame();
+        playSound('click');
+      });
+
+      document.getElementById('shareBtn').addEventListener('click', shareScore);
+
+      document.getElementById('settingMode').addEventListener('change', (e) => {
+        document.getElementById('aiDifficultyGroup').style.display = 
+          e.target.value === 'PvAI' ? 'flex' : 'none';
+      });
+    }
+
+    function generateStars() {
+      const container = document.getElementById('starfield');
+      const count = window.innerWidth < 600 ? 30 : 60;
+      for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.width = star.style.height = (Math.random() * 3 + 1) + 'px';
+        star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+        star.style.setProperty('--max-opacity', Math.random() * 0.7 + 0.3);
+        star.style.animationDelay = Math.random() * 5 + 's';
+        container.appendChild(star);
+      }
+    }
+
+    function renderBoard() {
+      const board = document.getElementById('gameBoard');
+      board.innerHTML = '';
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement('button');
+        cell.className = 'cell';
+        cell.dataset.index = i;
+        cell.setAttribute('role', 'gridcell');
+        cell.setAttribute('aria-label', `Row ${Math.floor(i / 3) + 1}, Column ${(i % 3) + 1}, empty`);
+        cell.addEventListener('click', () => handleCellClick(i));
+        board.appendChild(cell);
+      }
+    }
+
+    /* =========================================
+       GAME LOGIC
+       ========================================= */
+    function handleCellClick(index) {
+      if (state.board[index] || checkWinner(state.board)) return;
+      if (state.settings.gameMode === 'PvAI' && state.currentPlayer === 'P2') return;
+
+      state.pendingMove = index;
+
+      if (state.settings.quizEnabled) {
+        openQuiz();
+      } else {
+        executeMove(index);
+      }
+    }
+
+    function executeMove(index) {
+      state.board[index] = state.currentPlayer;
+      const cell = document.querySelector(`.cell[data-index="${index}"]`);
+      cell.textContent = glyphs[state.settings.glyphTheme][state.currentPlayer];
+      cell.classList.add(state.currentPlayer.toLowerCase(), 'pop-in');
+      cell.setAttribute('aria-label', `Row ${Math.floor(index / 3) + 1}, Column ${(index % 3) + 1}, ${state.currentPlayer === 'P1' ? 'Player 1' : 'Player 2'}`);
+      cell.disabled = true;
+      playSound('click');
+
+      const winner = checkWinner(state.board);
+      if (winner) {
+        handleWin(winner);
+      } else if (state.board.every(cell => cell !== null)) {
+        handleDraw();
+      } else {
+        state.currentPlayer = state.currentPlayer === 'P1' ? 'P2' : 'P1';
+        updateUI();
+        
+        if (state.settings.gameMode === 'PvAI' && state.currentPlayer === 'P2') {
+          setTimeout(makeAIMove, 600);
+        }
+      }
+    }
+
+    function checkWinner(board) {
+      const lines = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+      ];
+      for (const [a, b, c] of lines) {
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+          return board[a];
+        }
+      }
+      return null;
+    }
+
+    function handleWin(winner) {
+      state.scores[winner]++;
+      saveToStorage();
+      updateUI();
+      playSound('win');
+      triggerConfetti(100);
+      
+      const name = winner === 'P1' ? (state.settings.gameMode === 'PvAI' ? 'You' : 'Player 1') : (state.settings.gameMode === 'PvAI' ? 'AI' : 'Player 2');
+      document.getElementById('victoryIcon').textContent = state.settings.glyphTheme === 'Magic' ? '👑' : '🏆';
+      document.getElementById('victoryTitle').textContent = `${name} Wins!`;
+      document.getElementById('victoryMessage').textContent = `${name} has conquered the Magic Quest!`;
+      document.getElementById('victoryDialog').showModal();
+    }
+
+    function handleDraw() {
+      state.scores.Draw++;
+      saveToStorage();
+      updateUI();
+      document.getElementById('victoryIcon').textContent = '🤝';
+      document.getElementById('victoryTitle').textContent = 'It\'s a Draw!';
+      document.getElementById('victoryMessage').textContent = 'The forces are balanced. Try again!';
+      document.getElementById('victoryDialog').showModal();
+    }
+
+    function closeVictoryAndReset() {
+      document.getElementById('victoryDialog').close();
+      resetGame();
+    }
+
+    function resetGame() {
+      state.board = Array(9).fill(null);
+      state.currentPlayer = state.settings.startingPlayer;
+      state.pendingMove = null;
+      state.quizAttempts = 0;
+      renderBoard();
+      updateUI();
+      
+      if (state.settings.gameMode === 'PvAI' && state.currentPlayer === 'P2') {
+        setTimeout(makeAIMove, 500);
+      }
+    }
+
+    /* =========================================
+       AI LOGIC
+       ========================================= */
+    function makeAIMove() {
+      if (checkWinner(state.board) || state.board.every(c => c !== null)) return;
+
+      let move;
+      const difficulty = state.settings.aiDifficulty;
+      const available = state.board.map((v, i) => v === null ? i : null).filter(v => v !== null);
+
+      if (difficulty === 'Reckless') {
+        move = available[Math.floor(Math.random() * available.length)];
+      } else if (difficulty === 'Pragmatic') {
+        move = getPragmaticMove();
+      } else {
+        move = getBestMove(state.board, 'P2');
+      }
+
+      // AI bypasses quiz for smooth gameplay, but we show a brief "thinking" state
+      document.getElementById('turnIndicator').textContent = 'AI is conjuring knowledge...';
+      setTimeout(() => {
+        executeMove(move);
+      }, 400);
+    }
+
+    function getPragmaticMove() {
+      // 1. Win if possible
+      for (let i = 0; i < 9; i++) {
+        if (!state.board[i]) {
+          state.board[i] = 'P2';
+          if (checkWinner(state.board)) { state.board[i] = null; return i; }
+          state.board[i] = null;
+        }
+      }
+      // 2. Block opponent win
+      for (let i = 0; i < 9; i++) {
+        if (!state.board[i]) {
+          state.board[i] = 'P1';
+          if (checkWinner(state.board)) { state.board[i] = null; return i; }
+          state.board[i] = null;
+        }
+      }
+      // 3. Take center
+      if (!state.board[4]) return 4;
+      // 4. Random corner
+      const corners = [0, 2, 6, 8].filter(i => !state.board[i]);
+      if (corners.length > 0) return corners[Math.floor(Math.random() * corners.length)];
+      // 5. Random
+      const available = state.board.map((v, i) => v === null ? i : null).filter(v => v !== null);
+      return available[Math.floor(Math.random() * available.length)];
+    }
+
+    function getBestMove(board, player) {
+      const opponent = player === 'P1' ? 'P2' : 'P1';
+      
+      function minimax(b, depth, isMaximizing) {
+        const winner = checkWinner(b);
+        if (winner === 'P2') return 10 - depth;
+        if (winner === 'P1') return depth - 10;
+        if (b.every(cell => cell !== null)) return 0;
+
+        if (isMaximizing) {
+          let best = -Infinity;
+          for (let i = 0; i < 9; i++) {
+            if (!b[i]) {
+              b[i] = 'P2';
+              best = Math.max(best, minimax(b, depth + 1, false));
+              b[i] = null;
+            }
+          }
+          return best;
+        } else {
+          let best = Infinity;
+          for (let i = 0; i < 9; i++) {
+            if (!b[i]) {
+              b[i] = 'P1';
+              best = Math.min(best, minimax(b, depth + 1, true));
+              b[i] = null;
+            }
+          }
+          return best;
+        }
+      }
+
+      let bestVal = -Infinity;
+      let bestMove = -1;
+      for (let i = 0; i < 9; i++) {
+        if (!board[i]) {
+          board[i] = 'P2';
+          const moveVal = minimax(board, 0, false);
+          board[i] = null;
+          if (moveVal > bestVal) {
+            bestMove = i;
+            bestVal = moveVal;
+          }
+        }
+      }
+      return bestMove;
+    }
+
+    /* =========================================
+       QUIZ SYSTEM
+       ========================================= */
+    function openQuiz() {
+      state.quizAttempts = 0;
+      state.currentQuestion = questions[Math.floor(Math.random() * questions.length)];
+      
+      document.getElementById('quizQuestion').textContent = state.currentQuestion.question;
+      document.getElementById('quizFeedback').textContent = '';
+      document.getElementById('quizFeedback').className = 'feedback-msg';
+      updateAttemptsUI();
+
+      const optionsContainer = document.getElementById('quizOptions');
+      optionsContainer.innerHTML = '';
+      
+      state.currentQuestion.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'quiz-option';
+        btn.textContent = opt;
+        btn.dataset.index = idx + 1;
+        btn.setAttribute('role', 'radio');
+        btn.setAttribute('aria-checked', 'false');
+        btn.addEventListener('click', () => handleQuizAnswer(idx + 1, btn));
+        optionsContainer.appendChild(btn);
+      });
+
+      document.getElementById('quizDialog').showModal();
+    }
+
+    function handleQuizAnswer(selected, btnElement) {
+      const correct = state.currentQuestion.correct;
+      const feedback = document.getElementById('quizFeedback');
+      const options = document.querySelectorAll('.quiz-option');
+
+      if (selected === correct) {
+        // Correct
+        btnElement.classList.add('correct');
+        feedback.textContent = '✨ Correct! The spell is cast!';
+        feedback.className = 'feedback-msg success';
+        playSound('correct');
+        triggerConfetti(20);
+        
+        options.forEach(opt => opt.disabled = true);
+        
+        setTimeout(() => {
+          document.getElementById('quizDialog').close();
+          executeMove(state.pendingMove);
+        }, 1200);
+      } else {
+        // Incorrect
+        state.quizAttempts++;
+        btnElement.classList.add('incorrect');
+        btnElement.disabled = true;
+        playSound('incorrect');
+        
+        if (state.quizAttempts >= 3) {
+          // Mercy rule
+          feedback.textContent = `Mercy rule! The answer was: ${state.currentQuestion.options[correct - 1]}`;
+          feedback.className = 'feedback-msg error';
+          options.forEach(opt => {
+            if (parseInt(opt.dataset.index) === correct) opt.classList.add('correct');
+            opt.disabled = true;
+          });
+          
+          setTimeout(() => {
+            document.getElementById('quizDialog').close();
+            executeMove(state.pendingMove);
+          }, 2000);
+        } else {
+          feedback.textContent = 'Not quite. The magic resists. Try again!';
+          feedback.className = 'feedback-msg error';
+          updateAttemptsUI();
+        }
+      }
+    }
+
+    function updateAttemptsUI() {
+      document.getElementById('quizAttempts').textContent = `Attempts: ${state.quizAttempts} / 3`;
+    }
+
+    /* =========================================
+       UI & SETTINGS
+       ========================================= */
+    function updateUI() {
+      document.getElementById('scoreP1').textContent = state.scores.P1;
+      document.getElementById('scoreP2').textContent = state.scores.P2;
+      document.getElementById('scoreDraw').textContent = state.scores.Draw;
+      
+      const p1Name = state.settings.gameMode === 'PvAI' ? 'You' : 'Player 1';
+      const p2Name = state.settings.gameMode === 'PvAI' ? 'AI' : 'Player 2';
+      document.getElementById('labelP1').textContent = p1Name;
+      document.getElementById('labelP2').textContent = p2Name;
+
+      const currentName = state.currentPlayer === 'P1' ? p1Name : p2Name;
+      document.getElementById('turnIndicator').textContent = `${currentName}'s Turn (${glyphs[state.settings.glyphTheme][state.currentPlayer]})`;
+    }
+
+    function saveSettings() {
+      state.settings.quizEnabled = document.getElementById('settingQuiz').checked;
+      state.settings.muted = !document.getElementById('settingSound').checked;
+      state.settings.glyphTheme = document.getElementById('settingGlyphs').value;
+      state.settings.gameMode = document.getElementById('settingMode').value;
+      state.settings.aiDifficulty = document.getElementById('settingDifficulty').value;
+      state.settings.startingPlayer = document.getElementById('settingStarter').value;
+      
+      saveToStorage();
+      document.getElementById('settingsDialog').close();
+      resetGame();
+      playSound('click');
+    }
+
+    function exportSettings() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state.settings));
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", dataStr);
+      downloadAnchorNode.setAttribute("download", "magic_quest_settings.json");
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+    }
+
+    function importSettings(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          state.settings = { ...state.settings, ...imported };
+          saveToStorage();
+          document.getElementById('settingQuiz').checked = state.settings.quizEnabled;
+          document.getElementById('settingSound').checked = !state.settings.muted;
+          document.getElementById('settingGlyphs').value = state.settings.glyphTheme;
+          document.getElementById('settingMode').value = state.settings.gameMode;
+          document.getElementById('settingDifficulty').value = state.settings.aiDifficulty;
+          document.getElementById('settingStarter').value = state.settings.startingPlayer;
+          document.getElementById('aiDifficultyGroup').style.display = state.settings.gameMode === 'PvAI' ? 'flex' : 'none';
+          alert('Settings imported successfully!');
+        } catch (err) {
+          alert('Invalid JSON file');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function shareScore() {
+      const text = `🏆 Magic Quest Score!\nPlayer 1: ${state.scores.P1} | Player 2: ${state.scores.P2} | Draws: ${state.scores.Draw}\nCan you beat my score?`;
+      if (navigator.share) {
+        navigator.share({ title: 'Magic Quest Score', text: text }).catch(console.error);
+      } else {
+        navigator.clipboard.writeText(text).then(() => {
+          const btn = document.getElementById('shareBtn');
+          const original = btn.textContent;
+          btn.textContent = 'Copied!';
+          setTimeout(() => btn.textContent = original, 2000);
+        });
+      }
+    }
+
+    /* =========================================
+       STORAGE
+       ========================================= */
+    function saveToStorage() {
+      localStorage.setItem('magicQuestState', JSON.stringify({
+        scores: state.scores,
+        settings: state.settings
+      }));
+    }
+
+    function loadFromStorage() {
+      const saved = localStorage.getItem('magicQuestState');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        state.scores = parsed.scores || state.scores;
+        state.settings = { ...state.settings, ...parsed.settings };
+        
+        // Apply to inputs
+        document.getElementById('settingQuiz').checked = state.settings.quizEnabled;
+        document.getElementById('settingSound').checked = !state.settings.muted;
+        document.getElementById('settingGlyphs').value = state.settings.glyphTheme;
+        document.getElementById('settingMode').value = state.settings.gameMode;
+        document.getElementById('settingDifficulty').value = state.settings.aiDifficulty;
+        document.getElementById('settingStarter').value = state.settings.startingPlayer;
+        document.getElementById('aiDifficultyGroup').style.display = state.settings.gameMode === 'PvAI' ? 'flex' : 'none';
+      }
+    }
+
+    /* =========================================
+       EFFECTS
+       ========================================= */
+    function triggerConfetti(count) {
+      const colors = ['#ff6b9d', '#7b68ee', '#ffd93d', '#00d9a5', '#ffffff'];
+      for (let i = 0; i < count; i++) {
+        const conf = document.createElement('div');
+        conf.className = 'confetti';
+        conf.style.left = Math.random() * 100 + 'vw';
+        conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        conf.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+        conf.style.setProperty('--x', (Math.random() - 0.5) * 300 + 'px');
+        conf.style.width = (Math.random() * 8 + 5) + 'px';
+        conf.style.height = (Math.random() * 8 + 5) + 'px';
+        conf.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        document.body.appendChild(conf);
+        setTimeout(() => conf.remove(), 3500);
+      }
+    }
+
+    // Start
+    init();
+  </script>
+</body>
+</html>
