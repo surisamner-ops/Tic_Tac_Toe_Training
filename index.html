@@ -680,15 +680,15 @@ isWarningShown = false;
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                student_name: studentName || 'Anonymous',
-                exercise_name: exerciseName,
-                score: payload.score,
-                percentage: payload.percentage,
-                time: payload.time,
-                time_spent: 'Game mode',
-                tab_switches: safeTab,
-                wrong_answers: wrongText
-            })
+    student_name: studentName || 'Anonymous',
+    exercise_name: exerciseName,
+    score: payload.score,
+    percentage: payload.percentage,
+    time: payload.time,
+    time_spent: 'Game mode',
+    tab_switches: safeTab,
+    errors_text: wrongText
+})
         });
     } catch (e) {
         console.log('Sheets error:', e);
