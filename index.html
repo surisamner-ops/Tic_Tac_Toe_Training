@@ -1,1238 +1,777 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="description" content="Magic Quest: A mystical, educational Tic-Tac-Toe game where knowledge unlocks your moves.">
-  <title>Magic Quest: Tic-Tac-Toe</title>
-  <style>
-    /* =========================================
-       CSS VARIABLES & RESET
-       ========================================= */
-    :root {
-      --bg-deep: #0f0c29;
-      --bg-mid: #302b63;
-      --bg-light: #24243e;
-      --accent-primary: #ff6b9d;
-      --accent-secondary: #7b68ee;
-      --accent-gold: #ffd93d;
-      --success: #00d9a5;
-      --error: #ff6b6b;
-      --text-primary: #ffffff;
-      --text-secondary: #e0e0e0;
-      --glass-bg: rgba(255, 255, 255, 0.08);
-      --glass-border: rgba(255, 255, 255, 0.15);
-      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-      --radius: 16px;
-      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html {
-      font-size: 16px;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-      background: linear-gradient(135deg, var(--bg-deep), var(--bg-mid), var(--bg-light));
-      background-size: 400% 400%;
-      animation: gradientShift 15s ease infinite;
-      color: var(--text-primary);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-      overflow-x: hidden;
-      position: relative;
-    }
-
-    /* =========================================
-       ANIMATED BACKGROUND
-       ========================================= */
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    #starfield {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .star {
-      position: absolute;
-      background: white;
-      border-radius: 50%;
-      animation: twinkle var(--duration) ease-in-out infinite;
-      opacity: 0;
-    }
-
-    @keyframes twinkle {
-      0%, 100% { opacity: 0; transform: scale(0.5); }
-      50% { opacity: var(--max-opacity); transform: scale(1); }
-    }
-
-    /* =========================================
-       GLASSMORPHISM & LAYOUT
-       ========================================= */
-    .glass-panel {
-      background: var(--glass-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius);
-      box-shadow: var(--glass-shadow);
-      position: relative;
-      z-index: 10;
-    }
-
-    main {
-      width: 100%;
-      max-width: 480px;
-      padding: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    h1 {
-      font-size: clamp(1.5rem, 5vw, 2rem);
-      background: linear-gradient(to right, var(--accent-primary), var(--accent-gold));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-    }
-
-    .icon-btn {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid var(--glass-border);
-      color: var(--text-primary);
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      cursor: pointer;
-      font-size: 1.25rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: var(--transition);
-    }
-
-    .icon-btn:hover, .icon-btn:focus-visible {
-      background: var(--accent-secondary);
-      transform: translateY(-2px);
-      outline: 2px solid var(--accent-gold);
-      outline-offset: 2px;
-    }
-
-    /* =========================================
-       SCORE BOARD & INDICATORS
-       ========================================= */
-    .score-board {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 0.5rem;
-      text-align: center;
-      font-size: 0.9rem;
-    }
-
-    .score-item {
-      background: rgba(0, 0, 0, 0.2);
-      padding: 0.75rem 0.5rem;
-      border-radius: 12px;
-      border: 1px solid var(--glass-border);
-    }
-
-    .score-value {
-      display: block;
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--accent-gold);
-      margin-top: 0.25rem;
-    }
-
-    .turn-indicator {
-      text-align: center;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: var(--accent-primary);
-      min-height: 1.5rem;
-      transition: var(--transition);
-    }
-
-    /* =========================================
-       GAME BOARD
-       ========================================= */
-    .game-board {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.75rem;
-      aspect-ratio: 1;
-      width: 100%;
-    }
-
-    .cell {
-      background: rgba(255, 255, 255, 0.05);
-      border: 2px solid var(--glass-border);
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: clamp(2rem, 8vw, 3rem);
-      font-weight: 700;
-      color: var(--text-primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: var(--transition);
-      user-select: none;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .cell:hover:not(:disabled) {
-      background: rgba(255, 255, 255, 0.15);
-      transform: translateY(-2px);
-      border-color: var(--accent-secondary);
-    }
-
-    .cell:focus-visible {
-      outline: 3px solid var(--accent-gold);
-      outline-offset: -3px;
-    }
-
-    .cell:disabled {
-      cursor: default;
-      opacity: 0.8;
-    }
-
-    .cell.p1 { color: var(--accent-primary); text-shadow: 0 0 10px rgba(255, 107, 157, 0.5); }
-    .cell.p2 { color: var(--accent-secondary); text-shadow: 0 0 10px rgba(123, 104, 238, 0.5); }
-
-    .cell.pop-in {
-      animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    }
-
-    @keyframes popIn {
-      0% { transform: scale(0); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    /* =========================================
-       CONTROLS
-       ========================================= */
-    .controls {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-    }
-
-    .btn {
-      flex: 1;
-      padding: 0.875rem 1rem;
-      border: none;
-      border-radius: 12px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: var(--transition);
-      background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
-      color: white;
-      box-shadow: 0 4px 15px rgba(123, 104, 238, 0.3);
-    }
-
-    .btn:hover, .btn:focus-visible {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(123, 104, 238, 0.5);
-      outline: 2px solid var(--accent-gold);
-      outline-offset: 2px;
-    }
-
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.1);
-      box-shadow: none;
-      border: 1px solid var(--glass-border);
-    }
-
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    /* =========================================
-       MODALS / DIALOGS
-       ========================================= */
-    dialog {
-      background: var(--bg-mid);
-      color: var(--text-primary);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius);
-      padding: 0;
-      max-width: 90vw;
-      width: 400px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-      animation: modalSlideIn 0.3s ease-out;
-    }
-
-    dialog::backdrop {
-      background: rgba(15, 12, 41, 0.8);
-      backdrop-filter: blur(4px);
-    }
-
-    @keyframes modalSlideIn {
-      from { opacity: 0; transform: translateY(20px) scale(0.95); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    .modal-header {
-      padding: 1.25rem;
-      border-bottom: 1px solid var(--glass-border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .modal-header h2 {
-      font-size: 1.25rem;
-      color: var(--accent-gold);
-    }
-
-    .modal-body {
-      padding: 1.25rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .close-btn {
-      background: none;
-      border: none;
-      color: var(--text-secondary);
-      font-size: 1.5rem;
-      cursor: pointer;
-      line-height: 1;
-    }
-
-    .close-btn:hover { color: var(--error); }
-
-    /* Settings Form */
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .form-group label {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      font-weight: 500;
-    }
-
-    select, .toggle-row {
-      width: 100%;
-      padding: 0.75rem;
-      border-radius: 8px;
-      border: 1px solid var(--glass-border);
-      background: rgba(0, 0, 0, 0.2);
-      color: var(--text-primary);
-      font-size: 1rem;
-    }
-
-    .toggle-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-    }
-
-    .toggle-switch {
-      position: relative;
-      width: 48px;
-      height: 26px;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 13px;
-      transition: var(--transition);
-    }
-
-    .toggle-switch::after {
-      content: '';
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 20px;
-      height: 20px;
-      background: white;
-      border-radius: 50%;
-      transition: var(--transition);
-    }
-
-    input[type="checkbox"]:checked + .toggle-switch {
-      background: var(--success);
-    }
-
-    input[type="checkbox"]:checked + .toggle-switch::after {
-      transform: translateX(22px);
-    }
-
-    input[type="checkbox"] {
-      position: absolute;
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    /* Quiz Modal */
-    .quiz-question {
-      font-size: 1.1rem;
-      font-weight: 600;
-      line-height: 1.4;
-      margin-bottom: 0.5rem;
-    }
-
-    .quiz-options {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .quiz-option {
-      padding: 1rem;
-      background: rgba(255, 255, 255, 0.05);
-      border: 2px solid var(--glass-border);
-      border-radius: 10px;
-      color: var(--text-primary);
-      text-align: left;
-      cursor: pointer;
-      transition: var(--transition);
-      font-size: 1rem;
-    }
-
-    .quiz-option:hover:not(:disabled) {
-      background: rgba(123, 104, 238, 0.2);
-      border-color: var(--accent-secondary);
-    }
-
-    .quiz-option.correct {
-      background: rgba(0, 217, 165, 0.2);
-      border-color: var(--success);
-      color: var(--success);
-    }
-
-    .quiz-option.incorrect {
-      background: rgba(255, 107, 107, 0.2);
-      border-color: var(--error);
-      color: var(--error);
-    }
-
-    .quiz-option:disabled {
-      cursor: default;
-      opacity: 0.7;
-    }
-
-    .feedback-msg {
-      text-align: center;
-      font-weight: 600;
-      min-height: 1.5rem;
-      margin-top: 0.5rem;
-    }
-
-    .feedback-msg.success { color: var(--success); }
-    .feedback-msg.error { color: var(--error); }
-
-    .attempts-indicator {
-      text-align: center;
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      margin-top: 0.5rem;
-    }
-
-    /* Victory Modal */
-    .victory-content {
-      text-align: center;
-      padding: 2rem 1.5rem;
-    }
-
-    .victory-icon {
-      font-size: 4rem;
-      margin-bottom: 1rem;
-      animation: bounce 1s infinite;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-10px); }
-    }
-
-    .victory-title {
-      font-size: 1.75rem;
-      color: var(--accent-gold);
-      margin-bottom: 0.5rem;
-    }
-
-    .victory-message {
-      color: var(--text-secondary);
-      margin-bottom: 1.5rem;
-    }
-
-    /* Confetti */
-    .confetti {
-      position: fixed;
-      top: -10px;
-      width: 10px;
-      height: 10px;
-      z-index: 9999;
-      pointer-events: none;
-      animation: fall linear forwards;
-    }
-
-    @keyframes fall {
-      to {
-        transform: translateY(100vh) translateX(var(--x)) rotate(720deg);
-        opacity: 0;
-      }
-    }
-
-    /* =========================================
-       ACCESSIBILITY & REDUCED MOTION
-       ========================================= */
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-      }
-      .star { display: none; }
-    }
-
-    /* Mobile optimizations */
-    @media (max-width: 360px) {
-      main { padding: 1rem; }
-      .score-board { font-size: 0.8rem; }
-      .score-value { font-size: 1.25rem; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>✨ Past Tenses Tic Tac Toe</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Outfit:wght@300;400;600;800&family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #0f0c29; --bg-mid: #302b63; --bg-light: #24243e;
+            --glass-bg: rgba(255, 255, 255, 0.08); --glass-border: rgba(255, 255, 255, 0.15);
+            --glass-highlight: rgba(255, 255, 255, 0.25); --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.75); --accent-primary: #ff6b9d;
+            --accent-secondary: #7b68ee; --accent-gold: #ffd93d;
+            --success: #00d9a5; --error: #ff6b6b;
+            --shadow-glow: 0 0 30px rgba(123, 104, 238, 0.4);
+            --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --font-display: 'Fredoka', sans-serif; --font-body: 'Outfit', sans-serif;
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; padding: 0; background: linear-gradient(135deg, var(--bg-deep), var(--bg-mid), var(--bg-light)); background-size: 400% 400%; animation: gradientShift 20s ease infinite; color: var(--text-primary); font-family: var(--font-body); height: 100vh; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+        @keyframes gradientShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        #stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle var(--duration, 3s) ease-in-out infinite var(--delay, 0s); opacity: var(--opacity, 0.8); box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.6); }
+        @keyframes twinkle { 0%, 100% { opacity: var(--opacity, 0.3); transform: scale(1); } 50% { opacity: 1; transform: scale(1.3); } }
+        .star.shooting { width: 2px !important; height: 60px !important; border-radius: 1px; background: linear-gradient(to bottom, transparent, #fff, transparent); animation: shoot 2s linear forwards; opacity: 0; }
+        @keyframes shoot { 0% { transform: translate(0, 0) rotate(45deg); opacity: 1; } 100% { transform: translate(100vw, 100vh) rotate(45deg); opacity: 0; } }
+        .app-container { position: relative; z-index: 10; display: flex; flex-direction: column; height: 100%; }
+        header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); box-shadow: var(--shadow-soft); }
+        .logo { display: flex; align-items: center; gap: 0.75rem; }
+        .logo-icon { font-size: 1.8rem; animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        h1 { font-family: var(--font-display); font-size: 1.3rem; margin: 0; background: linear-gradient(135deg, var(--accent-gold), var(--accent-primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 800; letter-spacing: -0.5px; }
+        .controls { display: flex; gap: 0.5rem; }
+        .btn { background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-primary); padding: 0.5rem 1rem; border-radius: 12px; font-family: var(--font-body); font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: var(--transition-smooth); display: flex; align-items: center; gap: 0.4rem; backdrop-filter: blur(10px); }
+        .btn:hover { background: var(--glass-highlight); border-color: var(--accent-secondary); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(123, 104, 238, 0.3); }
+        .btn.primary { background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary)); border: none; color: white; }
+        .btn.primary:hover { box-shadow: 0 6px 25px rgba(255, 107, 157, 0.5); transform: translateY(-3px); }
+        .btn:active { transform: translateY(0); }
+        main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; position: relative; }
+        #victory-banner { height: 0; overflow: hidden; transition: height 0.4s ease; margin-bottom: 0; text-align: center; width: 100%; max-width: 500px; }
+        #victory-banner.visible { height: 4rem; margin-bottom: 1rem; }
+        #victory-text { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; background: linear-gradient(135deg, var(--accent-gold), var(--accent-primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-transform: uppercase; letter-spacing: 2px; opacity: 0; transform: translateY(-10px); transition: all 0.3s ease 0.1s; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        #victory-banner.visible #victory-text { opacity: 1; transform: translateY(0); }
+        .board-container { width: 92vmin; height: 92vmin; max-width: 520px; max-height: 520px; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); gap: 2vmin; padding: 2vmin; background: var(--glass-bg); border-radius: 24px; border: 1px solid var(--glass-border); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: var(--shadow-glow), var(--shadow-soft); position: relative; overflow: hidden; }
+        .board-container::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(123,104,238,0.1) 0%, transparent 70%); animation: pulse 4s ease-in-out infinite; pointer-events: none; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.1); opacity: 0.8; } }
+        .cell { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: clamp(2.5rem, 11vmin, 4.5rem); cursor: pointer; transition: var(--transition-smooth); position: relative; user-select: none; overflow: hidden; }
+        .cell::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); opacity: 0; transition: opacity 0.3s; }
+        .cell:hover:not(.taken):not(.disabled) { background: rgba(255, 255, 255, 0.12); border-color: var(--accent-secondary); transform: translateY(-3px); box-shadow: 0 10px 30px rgba(123, 104, 238, 0.3); }
+        .cell:hover:not(.taken):not(.disabled)::after { opacity: 1; }
+        .cell:active:not(.taken):not(.disabled) { transform: scale(0.97); }
+        .cell.taken { cursor: default; }
+        .cell.disabled { cursor: not-allowed; opacity: 0.5; pointer-events: none; filter: grayscale(0.8); }
+        .cell.win { background: linear-gradient(135deg, rgba(255,217,61,0.3), rgba(255,107,157,0.3)) !important; border-color: var(--accent-gold) !important; box-shadow: 0 0 30px rgba(255, 217, 61, 0.5) !important; animation: winPulse 1.5s ease-in-out infinite; }
+        @keyframes winPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        .glyph { font-family: var(--font-display); font-weight: 700; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; z-index: 2; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .glyph.x { color: var(--accent-primary); }
+        .glyph.o { color: var(--accent-secondary); }
+        @keyframes popIn { from { transform: scale(0) rotate(-20deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
+        footer { background: var(--glass-bg); padding: 1rem 1.5rem; display: flex; justify-content: space-around; align-items: center; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--glass-border); box-shadow: 0 -4px 20px rgba(0,0,0,0.3); }
+        .score-box { text-align: center; min-width: 75px; padding: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid var(--glass-border); }
+        .score-label { font-size: 0.7rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.3rem; font-weight: 600; }
+        .score-val { font-family: var(--font-display); font-size: 2rem; font-weight: 800; color: var(--accent-gold); text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 12, 41, 0.85); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 100; opacity: 0; visibility: hidden; transition: var(--transition-smooth); padding: 1rem; }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        .quiz-modal { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2rem; width: 100%; max-width: 500px; box-shadow: var(--shadow-glow), var(--shadow-soft); transform: translateY(20px); transition: transform 0.3s ease; position: relative; overflow: hidden; }
+        .modal-overlay.active .quiz-modal { transform: translateY(0); }
+        .quiz-modal::before { content: ''; position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1; transform: rotate(15deg); }
+        .quiz-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border); }
+        .quiz-icon { font-size: 1.8rem; animation: bounce 2s ease infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+        .quiz-title { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; color: var(--accent-gold); }
+        .quiz-question { font-size: 1.1rem; line-height: 1.5; margin-bottom: 1.5rem; font-weight: 400; }
+        .quiz-question span { color: var(--accent-primary); font-weight: 600; border-bottom: 2px solid var(--accent-primary); }
+        .quiz-options { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }
+        .quiz-option { background: rgba(255,255,255,0.08); border: 2px solid var(--glass-border); border-radius: 12px; padding: 0.9rem 1.2rem; cursor: pointer; transition: var(--transition-smooth); font-size: 1rem; display: flex; align-items: center; gap: 0.75rem; }
+        .quiz-option:hover { background: rgba(255,255,255,0.15); border-color: var(--accent-secondary); transform: translateX(5px); }
+        .quiz-option.selected { background: rgba(123, 104, 238, 0.3); border-color: var(--accent-secondary); }
+        .quiz-option.correct { background: rgba(0, 217, 165, 0.25); border-color: var(--success); animation: correctPulse 0.5s ease; }
+        .quiz-option.incorrect { background: rgba(255, 107, 107, 0.25); border-color: var(--error); animation: shake 0.4s ease; }
+        @keyframes correctPulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+        .quiz-option-letter { background: var(--accent-secondary); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; flex-shrink: 0; }
+        .quiz-feedback { min-height: 2.5rem; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; font-weight: 700; font-size: 1.1rem; opacity: 0; transform: translateY(10px); transition: var(--transition-smooth); }
+        .quiz-feedback.show { opacity: 1; transform: translateY(0); }
+        .quiz-feedback.correct { color: var(--success); }
+        .quiz-feedback.incorrect { color: var(--error); }
+        .quiz-actions { display: flex; gap: 0.75rem; justify-content: center; }
+        .quiz-btn { padding: 0.75rem 1.5rem; border-radius: 12px; font-weight: 600; cursor: pointer; transition: var(--transition-smooth); border: none; font-family: var(--font-body); }
+        .quiz-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+        .quiz-btn.submit { background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary)); color: white; width: 100%; }
+        .quiz-btn.submit:hover:not(:disabled) { box-shadow: 0 6px 25px rgba(255, 107, 157, 0.5); transform: translateY(-2px); }
+        .quiz-progress { display: flex; gap: 0.3rem; margin-bottom: 1rem; justify-content: center; }
+        .progress-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--glass-border); transition: var(--transition-smooth); }
+        .progress-dot.active { background: var(--accent-gold); transform: scale(1.3); }
+        dialog { background: var(--glass-bg); color: var(--text-primary); border: 1px solid var(--glass-border); border-radius: 24px; padding: 1.5rem; width: 90%; max-width: 420px; box-shadow: var(--shadow-glow), var(--shadow-soft); margin: auto; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        dialog::backdrop { background: rgba(15, 12, 41, 0.7); backdrop-filter: blur(5px); }
+        dialog h2 { font-family: var(--font-display); color: var(--accent-gold); margin: 0 0 1.5rem 0; text-align: center; font-size: 1.4rem; }
+        .form-group { margin-bottom: 1.2rem; }
+        label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; font-weight: 600; opacity: 0.9; }
+        select { width: 100%; padding: 0.75rem 1rem; background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: var(--text-primary); border-radius: 12px; font-family: var(--font-body); font-size: 1rem; cursor: pointer; transition: var(--transition-smooth); }
+        select:focus { outline: none; border-color: var(--accent-secondary); box-shadow: 0 0 0 3px rgba(123, 104, 238, 0.3); }
+        .dialog-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--glass-border); }
+        #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 99; }
+        :focus-visible { outline: 2px solid var(--accent-gold); outline-offset: 2px; }
+        @media (max-height: 700px) { header { padding: 0.75rem 1rem; } h1 { font-size: 1.1rem; } .board-container { width: 88vmin; height: 88vmin; } footer { padding: 0.75rem 1rem; } .quiz-modal { padding: 1.5rem; } }
+        @media (max-width: 400px) { .controls { gap: 0.3rem; } .btn { padding: 0.4rem 0.7rem; font-size: 0.8rem; } .score-val { font-size: 1.6rem; } }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } }
+        .name-form-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 12, 41, 0.95); backdrop-filter: blur(15px); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 1rem; }
+        .name-form-overlay.hidden { display: none; }
+        .name-form { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2.5rem; width: 100%; max-width: 420px; box-shadow: var(--shadow-glow), var(--shadow-soft); text-align: center; }
+        .name-form h2 { font-family: var(--font-display); font-size: 1.8rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, var(--accent-gold), var(--accent-primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .name-form p { color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem; }
+        .name-input { width: 100%; padding: 0.9rem 1.2rem; background: rgba(255,255,255,0.08); border: 2px solid var(--glass-border); border-radius: 12px; color: var(--text-primary); font-family: var(--font-body); font-size: 1.1rem; text-align: center; margin-bottom: 1.5rem; transition: var(--transition-smooth); }
+        .name-input::placeholder { color: rgba(255,255,255,0.4); }
+        .name-input:focus { outline: none; border-color: var(--accent-secondary); box-shadow: 0 0 0 3px rgba(123, 104, 238, 0.3); background: rgba(255,255,255,0.12); }
+        .start-btn { width: 100%; padding: 1rem; background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary)); color: white; border: none; border-radius: 12px; font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: var(--transition-smooth); }
+        .start-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(255, 107, 157, 0.5); }
+        .sending-status { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: blur(15px); padding: 10px 20px; border-radius: 50px; font-size: 0.9rem; color: var(--text-secondary); z-index: 150; opacity: 0; visibility: hidden; transition: var(--transition-smooth); }
+        .sending-status.show { opacity: 1; visibility: visible; }
+        .sending-status.success { color: var(--success); border-color: var(--success); }
+        .sending-status.error { color: var(--error); border-color: var(--error); }
+                .back-to-exercises-btn {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #c084fc, #60a5fa);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(192, 132, 252, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            opacity: 0.9;
+        }
+        .back-to-exercises-btn:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 8px 30px rgba(192, 132, 252, 0.6);
+            opacity: 1;
+        }
+        .back-to-exercises-btn .btn-text {
+            position: absolute;
+            left: 85px;
+            background: rgba(192, 132, 252, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(192, 132, 252, 0.4);
+            padding: 10px 18px;
+            border-radius: 50px;
+            font-family: 'Comfortaa', cursive;
+            font-size: 1em;
+            font-weight: 600;
+            color: #e9d5ff;
+            white-space: nowrap;
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            letter-spacing: 0.5px;
+        }
+        .back-to-exercises-btn:hover .btn-text {
+            opacity: 1;
+            transform: translateX(5px);
+        }
+                .tab-warning-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 12, 41, 0.85); backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 300; opacity: 0; visibility: hidden; transition: all 0.3s ease;
+        }
+        .tab-warning-overlay.active { opacity: 1; visibility: visible; }
+        .tab-warning-box {
+            background: var(--glass-bg); border: 2px solid var(--error);
+            border-radius: 24px; padding: 2rem; text-align: center;
+            max-width: 400px; width: 90%;
+            box-shadow: 0 0 40px rgba(255, 107, 107, 0.3);
+            transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .tab-warning-overlay.active .tab-warning-box { transform: scale(1); }
+        .warning-icon { font-size: 3.5rem; display: block; margin-bottom: 1rem; animation: bounce 1s infinite; }
+        .tab-warning-box h3 { color: var(--error); font-family: var(--font-display); margin: 0 0 0.5rem 0; font-size: 1.6rem; }
+        .tab-warning-box p { color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.5; font-size: 1.05rem; }
+        .warning-btn {
+            background: var(--error); color: white; border: none; padding: 0.8rem 2rem;
+            border-radius: 12px; font-family: var(--font-body); font-weight: 600;
+            font-size: 1rem; cursor: pointer; transition: var(--transition-smooth);
+        }
+        .warning-btn:hover { background: #ff5252; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4); }
+    </style>
 </head>
 <body>
-
-  <div id="starfield" aria-hidden="true"></div>
-
-  <main class="glass-panel">
-    <header>
-      <h1>✨ Magic Quest</h1>
-      <button id="settingsBtn" class="icon-btn" aria-label="Open Settings">⚙️</button>
-    </header>
-
-    <div class="score-board" role="region" aria-label="Score Board">
-      <div class="score-item">
-        <span id="labelP1">Player 1</span>
-        <span class="score-value" id="scoreP1">0</span>
-      </div>
-      <div class="score-item">
-        <span>Draws</span>
-        <span class="score-value" id="scoreDraw">0</span>
-      </div>
-      <div class="score-item">
-        <span id="labelP2">Player 2</span>
-        <span class="score-value" id="scoreP2">0</span>
-      </div>
+    <div class="name-form-overlay" id="nameFormOverlay">
+        <div class="name-form">
+            <a href="../index.html" class="back-to-exercises-btn" onclick="localStorage.setItem('lastActiveTab', 'practice'); localStorage.setItem('returnFromExercise', 'true')">
+    <span>←</span>
+    <span class="btn-text">Back to exercises</span>
+</a>
+            <div style="font-size: 3rem; margin-bottom: 1rem; animation: float 3s ease-in-out infinite;">⏳</div>
+            <h2>Past Tenses Tic Tac Toe</h2>
+            <p>Please enter your name to start the game</p>
+            <input type="text" class="name-input" id="studentName" placeholder="Your name" autocomplete="off">
+            <button class="start-btn" onclick="startGame()">Start Game ✨</button>
+        </div>
     </div>
 
-    <div class="turn-indicator" id="turnIndicator" aria-live="polite">Player 1's Turn</div>
+    <div id="stars-container"></div>
+    <canvas id="confetti-canvas"></canvas>
+    <div class="app-container">
+        <a href="../index.html" class="back-to-exercises-btn" onclick="localStorage.setItem('lastActiveTab', 'practice'); localStorage.setItem('returnFromExercise', 'true')">
+    <span>←</span>
+    <span class="btn-text">Back to exercises</span>
+</a>
+        <header>
+            <div class="logo">
+                <span class="logo-icon">⏳</span>
+                <h1>Past Tenses Tic Tac Toe</h1>
+            </div>
+            <div class="controls">
+                <button class="btn" onclick="game.resetRound()" aria-label="Start New Round">🔄 New</button>
+                <button class="btn primary" onclick="ui.openSettings()" aria-label="Customize Game">⚙️ Settings</button>
+                <button class="btn" onclick="game.resetScores()" aria-label="Reset Scores">🗑️ Reset</button>
+            </div>
+        </header>
 
-    <div class="game-board" id="gameBoard" role="grid" aria-label="Tic Tac Toe Board">
-      <!-- Cells generated by JS -->
+        <main>
+            <div id="victory-banner"><div id="victory-text"></div></div>
+            <div class="board-container" id="board" role="grid" aria-label="Tic Tac Toe Board"></div>
+        </main>
+
+        <footer>
+            <div class="score-box"><div class="score-label" id="p1-label">Player 1</div><div class="score-val" id="score-x">0</div></div>
+            <div class="score-box"><div class="score-label">Draws</div><div class="score-val" id="score-draw">0</div></div>
+            <div class="score-box"><div class="score-label" id="p2-label">Player 2</div><div class="score-val" id="score-o">0</div></div>
+        </footer>
     </div>
 
-    <div class="controls">
-      <button id="resetBtn" class="btn">New Game</button>
-      <button id="shareBtn" class="btn btn-secondary">Share Score</button>
+    <div class="modal-overlay" id="quiz-modal" role="dialog" aria-modal="true" aria-labelledby="quiz-title">
+        <div class="quiz-modal">
+            <div class="quiz-header"><span class="quiz-icon">📚</span><span class="quiz-title" id="quiz-title">Grammar Challenge!</span></div>
+            <div class="quiz-progress" id="quiz-progress"><div class="progress-dot active"></div><div class="progress-dot"></div><div class="progress-dot"></div></div>
+            <div class="quiz-question" id="quiz-question">Loading question...</div>
+            <div class="quiz-options" id="quiz-options" role="radiogroup"></div>
+            <div class="quiz-feedback" id="quiz-feedback" role="status" aria-live="polite"></div>
+            <div class="quiz-actions"><button class="quiz-btn submit" id="quiz-submit" onclick="quiz.submitAnswer()" disabled>Submit Answer</button></div>
+        </div>
     </div>
-  </main>
 
-  <!-- Settings Dialog -->
-  <dialog id="settingsDialog" aria-labelledby="settingsTitle">
-    <div class="modal-header">
-      <h2 id="settingsTitle">Game Settings</h2>
-      <button class="close-btn" onclick="document.getElementById('settingsDialog').close()" aria-label="Close settings">&times;</button>
-    </div>
-    <div class="modal-body">
-      <label class="toggle-row">
-        <span>Quiz Gate (Answer to move)</span>
-        <input type="checkbox" id="settingQuiz" checked>
-        <span class="toggle-switch"></span>
-      </label>
+    <div class="sending-status" id="sendingStatus"></div>
 
-      <label class="toggle-row">
-        <span>Sound Effects</span>
-        <input type="checkbox" id="settingSound" checked>
-        <span class="toggle-switch"></span>
-      </label>
+    <dialog id="settings-dialog">
+        <h2>⚙️ Game Settings</h2>
+        <form method="dialog" id="settings-form">
+            <div class="form-group">
+                <label for="glyph-select">Glyphs</label>
+                <select id="glyph-select">
+                    <option value="standard">Standard (X / O)</option>
+                    <option value="magic">Magic (✨ / 🌙)</option>
+                    <option value="knight">Knight (⚔ / 🛡)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="mode-select">Game Mode</label>
+                <select id="mode-select">
+                    <option value="pvp">👥 2 Players</option>
+                    <option value="pve">🤖 Vs AI</option>
+                </select>
+            </div>
+            <div class="form-group" id="ai-diff-group">
+                <label for="ai-diff-select">AI Discipline</label>
+                <select id="ai-diff-select">
+                    <option value="perfect">🎯 Perfect (Minimax)</option>
+                    <option value="pragmatic">⚖️ Pragmatic (Mixed)</option>
+                    <option value="reckless">🎲 Reckless (Random)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="first-move">First Move</label>
+                <select id="first-move">
+                    <option value="X">Player 1 / ✨</option>
+                    <option value="O">Player 2 / 🌙</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label><input type="checkbox" id="quiz-toggle" checked style="vertical-align: middle; margin-right: 0.5rem;"> Enable Grammar Quiz before moves</label>
+            </div>
+            <div class="dialog-actions">
+                <button type="button" class="btn" onclick="ui.closeSettings()">Cancel</button>
+                <button type="submit" class="btn primary" onclick="ui.saveSettings()">Apply ✨</button>
+            </div>
+        </form>
+    </dialog>
 
-      <div class="form-group">
-        <label for="settingGlyphs">Glyph Theme</label>
-        <select id="settingGlyphs">
-          <option value="Magic">Magic (✨ / 🌙)</option>
-          <option value="Standard">Standard (X / O)</option>
-          <option value="Knight">Knight (⚔️ / 🛡️)</option>
-        </select>
-      </div>
+    <script>
+        const POWER_AUTOMATE_URL = 'https://default50bef10a64ce4efab7ceef7facd9c8.97.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/04/workflows/80320cf3242145f38cf2a9fe697b1bcf/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=pmVjt3_a2XgjEk7CxztVzXYwdUnHTs1Po59jq45gcyw';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwCybdydUS2PDlskYqe2_jdbTns0MB_6e45CLWCkpr6jLB-d1zHm5ebBifFNLFoKhwr/exec';
+        let studentName = '';
+       let roundStats = { correct: 0, incorrect: 0, total: 0 };
+let tabSwitchCount = 0;
+let wrongAnswers = [];
+let isWarningShown = false;
+        let gameStartTime = null;
+        
 
-      <div class="form-group">
-        <label for="settingMode">Game Mode</label>
-        <select id="settingMode">
-          <option value="PvP">2 Players</option>
-          <option value="PvAI">Vs AI</option>
-        </select>
-      </div>
+        function startGame() {
+            const nameInput = document.getElementById('studentName');
+            studentName = nameInput.value.trim();
+            if (studentName === '') {
+                nameInput.style.borderColor = 'var(--error)';
+                nameInput.style.animation = 'shake 0.4s ease';
+                setTimeout(() => { nameInput.style.animation = ''; }, 400);
+                return;
+            }
+            document.getElementById('nameFormOverlay').classList.add('hidden');
+            gameStartTime = Date.now();
+            tabSwitchCount = 0;
+            wrongAnswers = [];
+            game.init();
+        }
 
-      <div class="form-group" id="aiDifficultyGroup">
-        <label for="settingDifficulty">AI Difficulty</label>
-        <select id="settingDifficulty">
-          <option value="Pragmatic">Pragmatic (Balanced)</option>
-          <option value="Perfect">Perfect (Unbeatable)</option>
-          <option value="Reckless">Reckless (Easy)</option>
-        </select>
-      </div>
+        document.getElementById('studentName').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') startGame();
+        });
 
-      <div class="form-group">
-        <label for="settingStarter">Who Starts?</label>
-        <select id="settingStarter">
-          <option value="P1">Player 1</option>
-          <option value="P2">Player 2 / AI</option>
-        </select>
-      </div>
+        const starSystem = {
+            container: document.getElementById('stars-container'),
+            init() { this.createStars(); this.createShootingStars(); },
+            createStars() {
+                const count = 120;
+                for (let i = 0; i < count; i++) {
+                    const star = document.createElement('div'); star.className = 'star';
+                    const size = Math.random() * 3 + 1; const left = Math.random() * 100; const top = Math.random() * 100;
+                    const duration = Math.random() * 3 + 2; const delay = Math.random() * 5; const opacity = Math.random() * 0.5 + 0.3;
+                    star.style.cssText = `width: ${size}px; height: ${size}px; left: ${left}%; top: ${top}%; --duration: ${duration}s; --delay: ${delay}s; --opacity: ${opacity};`;
+                    this.container.appendChild(star);
+                }
+            },
+            createShootingStars() {
+                setInterval(() => {
+                    if (Math.random() > 0.7) {
+                        const star = document.createElement('div'); star.className = 'star shooting';
+                        star.style.left = Math.random() * 100 + '%'; star.style.top = Math.random() * 30 + '%';
+                        this.container.appendChild(star); setTimeout(() => star.remove(), 2000);
+                    }
+                }, 3000);
+            }
+        };
 
-      <button class="btn" onclick="saveSettings()">Save & Restart</button>
-      
-      <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
-        <button class="btn btn-secondary" onclick="exportSettings()" style="width: 100%; margin-bottom: 0.5rem;">Export Settings (JSON)</button>
-        <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()" style="width: 100%;">Import Settings</button>
-        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importSettings(this)">
-      </div>
-    </div>
-  </dialog>
+        const rawQuizData = [
+            "Yesterday I ___ to the park with my friends.,go,went,gone,2",
+            "While I ___ my homework, my mom called me.,did,was doing,had done,2",
+            "When we arrived at the cinema, the film had already ___. ,start,started,starting,2",
+            "She ___ a beautiful song at the party last night.,sang,was singing,had sung,1",
+            "At 8 PM yesterday, I ___ dinner with my family.,had,was having,had had,2",
+            "They ___ to London before they moved to Paris.,went,had gone,was going,2",
+            "What ___ you doing when I called you?,did,were,had,2",
+            "He ___ his keys, so he couldn't enter the house.,lost,was losing,had lost,3",
+            "We ___ a great time at the beach last summer.,had,was having,had had,1",
+            "While they ___ football, it started to rain.,played,were playing,had played,2",
+            "I had never ___ such a funny movie before.,see,saw,seen,3",
+            "My sister ___ her birthday party when I came home.,had,was having,had had,2",
+            "After she ___ her homework, she went out to play.,finished,was finishing,had finished,3",
+            "___ you visit your grandparents last weekend?,Did,Were,Had,1",
+            "The sun ___ when we left the house.,shone,was shining,had shone,2",
+            "He ___ in this city for five years before he moved.,lived,was living,had lived,3",
+            "What ___ you doing at 7 o'clock yesterday evening?,did,were,had,2",
+            "They ___ the museum before it closed.,visited,were visiting,had visited,3",
+            "I ___ my phone while I was walking to school.,dropped,was dropping,had dropped,1",
+            "She ___ English for two years before she came to Moscow.,studied,was studying,had studied,3"
+        ];
 
-  <!-- Quiz Dialog -->
-  <dialog id="quizDialog" aria-labelledby="quizTitle">
-    <div class="modal-header">
-      <h2 id="quizTitle">🔮 Knowledge Gate</h2>
-    </div>
-    <div class="modal-body">
-      <p class="quiz-question" id="quizQuestion">Loading question...</p>
-      <div class="quiz-options" id="quizOptions" role="radiogroup" aria-label="Quiz options">
-        <!-- Options injected by JS -->
-      </div>
-      <div class="feedback-msg" id="quizFeedback" aria-live="polite"></div>
-      <div class="attempts-indicator" id="quizAttempts">Attempts: 0 / 3</div>
-    </div>
-  </dialog>
+        const quizData = rawQuizData.map(q => {
+            const parts = q.split(',');
+            const correctIndex = parseInt(parts.pop()); 
+            const opt3 = parts.pop(); const opt2 = parts.pop(); const opt1 = parts.pop();
+            const questionText = parts.join(','); 
+            return { question: questionText, options: [opt1, opt2, opt3], correct: correctIndex - 1 };
+        });
 
-  <!-- Victory Dialog -->
-  <dialog id="victoryDialog" aria-labelledby="victoryTitle">
-    <div class="victory-content">
-      <div class="victory-icon" id="victoryIcon">🏆</div>
-      <h2 class="victory-title" id="victoryTitle">Victory!</h2>
-      <p class="victory-message" id="victoryMessage">Player 1 completes the quest!</p>
-      <button class="btn" onclick="closeVictoryAndReset()" style="width: 100%;">Play Again</button>
-    </div>
-  </dialog>
+        const quiz = {
+            modal: document.getElementById('quiz-modal'), questionEl: document.getElementById('quiz-question'),
+            optionsEl: document.getElementById('quiz-options'), feedbackEl: document.getElementById('quiz-feedback'),
+            submitBtn: document.getElementById('quiz-submit'), progressDots: document.querySelectorAll('.progress-dot'),
+            currentQuestion: null, selectedOption: null, attemptCount: 0, resolve: null,
+            
+            async askQuestion() {
+                return new Promise((resolve) => { this.resolve = resolve; this.attemptCount = 0; this.loadRandomQuestion(); this.showModal(); });
+            },
+            loadRandomQuestion() {
+                this.currentQuestion = quizData[Math.floor(Math.random() * quizData.length)];
+                this.selectedOption = null;
+                const parts = this.currentQuestion.question.split('___');
+                this.questionEl.innerHTML = parts.length > 1 ? `${parts[0]}<span>___</span>${parts[1] || ''}` : this.currentQuestion.question;
+                this.optionsEl.innerHTML = '';
+                const letters = ['A', 'B', 'C'];
+                this.currentQuestion.options.forEach((opt, idx) => {
+                    const btn = document.createElement('div'); btn.className = 'quiz-option'; btn.role = 'radio'; btn.tabIndex = 0;
+                    btn.innerHTML = `<span class="quiz-option-letter">${letters[idx]}</span> ${opt}`;
+                    btn.onclick = () => this.selectOption(idx, btn);
+                    btn.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.selectOption(idx, btn); } };
+                    this.optionsEl.appendChild(btn);
+                });
+                this.feedbackEl.textContent = ''; this.feedbackEl.className = 'quiz-feedback'; this.submitBtn.disabled = true; this.updateProgress();
+            },
+            selectOption(index, element) {
+                if (this.feedbackEl.classList.contains('show')) return;
+                document.querySelectorAll('.quiz-option').forEach(el => { el.classList.remove('selected'); el.setAttribute('aria-checked', 'false'); });
+                element.classList.add('selected'); element.setAttribute('aria-checked', 'true');
+                this.selectedOption = index; this.submitBtn.disabled = false;
+            },
+            updateProgress() { this.progressDots.forEach((dot, idx) => { dot.classList.toggle('active', idx <= Math.min(this.attemptCount, 2)); }); },
+            async submitAnswer() {
+                if (this.selectedOption === null) return;
+                const options = document.querySelectorAll('.quiz-option');
+                const isCorrect = this.selectedOption === this.currentQuestion.correct;
+                options.forEach(el => el.style.pointerEvents = 'none'); this.submitBtn.disabled = true; roundStats.total++;
+                
+                if (isCorrect) {
+                    options[this.selectedOption].classList.add('correct'); this.showFeedback('Absolutely right! ✨', 'correct'); roundStats.correct++;
+                    confetti.burst(30, { x: window.innerWidth/2, y: window.innerHeight/2 });
+                    setTimeout(() => { this.hideModal(); if (this.resolve) this.resolve(true); }, 1500);
+                } else {
+                    options[this.selectedOption].classList.add('incorrect'); options[this.currentQuestion.correct].classList.add('correct');
+                    this.showFeedback("Let's give it a try! 💪", 'incorrect'); roundStats.incorrect++; this.attemptCount++; this.updateProgress();
+wrongAnswers.push({ question: this.currentQuestion.question, chosen: this.currentQuestion.options[this.selectedOption], correct: this.currentQuestion.options[this.currentQuestion.correct] });
+                    setTimeout(() => {
+                        if (this.attemptCount < 3) { this.loadRandomQuestion(); } 
+                        else { this.showFeedback('Keep practicing! 🌟 Moving on...', 'correct'); setTimeout(() => { this.hideModal(); if (this.resolve) this.resolve(true); }, 1500); }
+                    }, 2000);
+                }
+            },
+            showFeedback(text, type) { this.feedbackEl.textContent = text; this.feedbackEl.classList.add('show', type); },
+            showModal() { this.modal.classList.add('active'); document.body.style.overflow = 'hidden'; },
+            hideModal() { this.modal.classList.remove('active'); document.body.style.overflow = ''; }
+        };
 
-  <script>
-    /* =========================================
-       QUESTION DATA & PARSER
-       ========================================= */
-    const rawQuizData = [
-      "What is the capital of France?,London,Berlin,Paris,3",
-      "Which planet is known as the Red Planet?,Venus,Mars,Jupiter,2",
-      "What is 2 + 2 × 2?,6,8,4,1",
-      "Who wrote 'Romeo and Juliet'?,Charles Dickens,William Shakespeare,Mark Twain,2",
-      "What is the chemical symbol for water?,H2O,CO2,O2,1",
-      "Which animal is known as the King of the Jungle?,Tiger,Lion,Elephant,2",
-      "What is the largest ocean on Earth?,Atlantic,Indian,Pacific,3",
-      "How many continents are there?,5,6,7,3",
-      "What gas do plants absorb from the atmosphere?,Oxygen,Carbon Dioxide,Nitrogen,2",
-      "In which year did the Titanic sink?,1912,1905,1920,1"
-    ];
+        const game = {
+            board: Array(9).fill(null), currentPlayer: 'X', gameActive: true, pendingMove: null,
+            scores: { X: 0, O: 0, draw: 0 },
+            settings: { glyphs: 'standard', mode: 'pvp', aiDifficulty: 'perfect', firstMove: 'X', quizEnabled: true },
+            winningCombos: [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]],
 
-    function parseQuestion(str) {
-      const parts = str.split(',');
-      const correct = parseInt(parts.pop().trim(), 10);
-      const opt3 = parts.pop().trim();
-      const opt2 = parts.pop().trim();
-      const opt1 = parts.pop().trim();
-      const question = parts.join(',').trim(); // Handles commas in the question itself
-      return { question, options: [opt1, opt2, opt3], correct };
+            init() { this.renderBoard(); ui.updateLabels(); this.resetRound(); },
+            async resetRound() {
+                this.board.fill(null); this.gameActive = true; this.pendingMove = null; this.currentPlayer = this.settings.firstMove;
+                ui.clearBoard(); ui.hideBanner(); ui.updateStatus(`Player ${this.currentPlayer}'s Turn`);
+                roundStats = { correct: 0, incorrect: 0, total: 0 };
+
+isWarningShown = false;
+                
+                if (this.settings.mode === 'pve' && this.currentPlayer === 'O') { await this.makeAiMove(); }
+            },
+            resetScores() { this.scores = { X: 0, O: 0, draw: 0 }; ui.updateScoreboard(); this.resetRound(); },
+            async handleCellClick(index) {
+                if (!this.gameActive || this.board[index] || this.pendingMove !== null) return;
+                this.pendingMove = index; ui.disableBoard(true);
+                if (this.settings.quizEnabled) { await quiz.askQuestion(); }
+                if (this.gameActive && this.pendingMove !== null) {
+                    this.executeMove(this.pendingMove); this.pendingMove = null;
+                    if (this.gameActive && this.settings.mode === 'pve' && this.currentPlayer === 'O') { ui.disableBoard(true); await this.makeAiMove(); }
+                }
+                ui.disableBoard(false);
+            },
+            executeMove(index) {
+                this.board[index] = this.currentPlayer; ui.renderCell(index, this.currentPlayer);
+                if (this.checkWin()) { this.endGame(false); } 
+                else if (this.board.every(cell => cell !== null)) { this.endGame(true); } 
+                else { this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X'; ui.updateStatus(`Player ${this.currentPlayer}'s Turn`); }
+            },
+            checkWin() {
+                return this.winningCombos.some(combo => {
+                    const [a, b, c] = combo;
+                    if (this.board[a] && this.board[a] === this.board[b] && this.board[a] === this.board[c]) { ui.highlightWin(combo); return true; }
+                    return false;
+                });
+            },
+            async endGame(isDraw) {
+                this.gameActive = false;
+                if (isDraw) { this.scores.draw++; ui.showBanner("It's a Draw! 🤝", false); } 
+                else {
+                    this.scores[this.currentPlayer]++;
+                    const winnerName = this.settings.mode === 'pve' && this.currentPlayer === 'O' ? "AI" : `Player ${this.currentPlayer}`;
+                    const emojis = { X: '✨', O: '🌙' };
+                    ui.showBanner(`${winnerName} ${emojis[this.currentPlayer] || '🏆'} Wins!`, true);
+                    confetti.start();
+                }
+                ui.updateScoreboard();
+                sendResultsToTeams(isDraw);
+            },
+            async makeAiMove() {
+                if (!this.gameActive) return;
+                await new Promise(r => setTimeout(r, 500));
+                let moveIndex; const difficulty = this.settings.aiDifficulty;
+                if (difficulty === 'reckless') { moveIndex = this.getRandomMove(); } 
+                else if (difficulty === 'pragmatic') {
+                    if (Math.random() < 0.2) { moveIndex = this.getRandomMove(); } else { moveIndex = this.getBestMove(); }
+                } else { moveIndex = this.getBestMove(); }
+                this.executeMove(moveIndex); ui.disableBoard(false);
+            },
+            getRandomMove() {
+                const available = this.board.map((v, i) => v === null ? i : null).filter(v => v !== null);
+                return available[Math.floor(Math.random() * available.length)];
+            },
+            getBestMove() {
+                let bestScore = -Infinity; let move;
+                for (let i = 0; i < 9; i++) {
+                    if (this.board[i] === null) {
+                        this.board[i] = 'O'; let score = this.minimax(this.board, 0, false); this.board[i] = null;
+                        if (score > bestScore) { bestScore = score; move = i; }
+                    }
+                }
+                return move;
+            },
+            minimax(board, depth, isMaximizing) {
+                const result = this.checkWinnerForMinimax(board); if (result !== null) return result;
+                if (isMaximizing) {
+                    let bestScore = -Infinity;
+                    for (let i = 0; i < 9; i++) {
+                        if (board[i] === null) { board[i] = 'O'; let score = this.minimax(board, depth + 1, false); board[i] = null; bestScore = Math.max(score, bestScore); }
+                    }
+                    return bestScore;
+                } else {
+                    let bestScore = Infinity;
+                    for (let i = 0; i < 9; i++) {
+                        if (board[i] === null) { board[i] = 'X'; let score = this.minimax(board, depth + 1, true); board[i] = null; bestScore = Math.min(score, bestScore); }
+                    }
+                    return bestScore;
+                }
+            },
+            checkWinnerForMinimax(board) {
+                for (let combo of this.winningCombos) {
+                    const [a, b, c] = combo;
+                    if (board[a] && board[a] === board[b] && board[a] === board[c]) { return board[a] === 'O' ? 10 : -10; }
+                }
+                if (board.every(cell => cell !== null)) return 0;
+                return null;
+            },
+            renderBoard() {
+                const boardEl = document.getElementById('board'); boardEl.innerHTML = '';
+                for (let i = 0; i < 9; i++) {
+                    const cell = document.createElement('div'); cell.className = 'cell'; cell.dataset.index = i;
+                    cell.setAttribute('role', 'gridcell'); cell.setAttribute('aria-label', `Cell ${i + 1}, empty`); cell.tabIndex = 0;
+                    cell.addEventListener('keydown', (e) => { if ((e.key === 'Enter' || e.key === ' ') && !cell.classList.contains('taken')) { e.preventDefault(); game.handleCellClick(i); } });
+                    cell.addEventListener('click', () => game.handleCellClick(i));
+                    boardEl.appendChild(cell);
+                }
+            }
+        };
+
+        const ui = {
+            dialog: document.getElementById('settings-dialog'), banner: document.getElementById('victory-banner'), bannerText: document.getElementById('victory-text'),
+            openSettings() {
+                document.getElementById('glyph-select').value = game.settings.glyphs;
+                document.getElementById('mode-select').value = game.settings.mode;
+                document.getElementById('ai-diff-select').value = game.settings.aiDifficulty;
+                document.getElementById('first-move').value = game.settings.firstMove;
+                document.getElementById('quiz-toggle').checked = game.settings.quizEnabled;
+                document.getElementById('ai-diff-group').style.display = game.settings.mode === 'pve' ? 'block' : 'none';
+                this.dialog.showModal();
+            },
+            closeSettings() { this.dialog.close(); },
+            saveSettings() {
+                game.settings.glyphs = document.getElementById('glyph-select').value;
+                game.settings.mode = document.getElementById('mode-select').value;
+                game.settings.aiDifficulty = document.getElementById('ai-diff-select').value;
+                game.settings.firstMove = document.getElementById('first-move').value;
+                game.settings.quizEnabled = document.getElementById('quiz-toggle').checked;
+                document.getElementById('ai-diff-group').style.display = game.settings.mode === 'pve' ? 'block' : 'none';
+                this.updateLabels(); game.resetRound(); this.closeSettings();
+            },
+            updateLabels() {
+                const p1Label = document.getElementById('p1-label'); const p2Label = document.getElementById('p2-label');
+                const glyphs = { standard: { X: 'X', O: 'O' }, magic: { X: '✨', O: '🌙' }, knight: { X: '⚔', O: '🛡' } };
+                const g = glyphs[game.settings.glyphs];
+                if (game.settings.mode === 'pve') { p1Label.textContent = `You (${g.X})`; p2Label.textContent = `AI (${g.O})`; } 
+                else { p1Label.textContent = `P1 (${g.X})`; p2Label.textContent = `P2 (${g.O})`; }
+            },
+            renderCell(index, player) {
+                const cell = document.querySelector(`.cell[data-index='${index}']`); cell.classList.add('taken');
+                cell.setAttribute('aria-label', `Cell ${index + 1}, taken by ${player}`);
+                const span = document.createElement('span'); span.className = `glyph ${player.toLowerCase()}`;
+                const glyphs = { standard: { X: 'X', O: 'O' }, magic: { X: '✨', O: '🌙' }, knight: { X: '⚔', O: '🛡' } };
+                span.textContent = glyphs[game.settings.glyphs][player]; cell.appendChild(span);
+            },
+            clearBoard() {
+                document.querySelectorAll('.cell').forEach(cell => {
+                    cell.innerHTML = ''; cell.classList.remove('taken', 'win', 'disabled');
+                    cell.setAttribute('aria-label', `Cell ${parseInt(cell.dataset.index) + 1}, empty`); cell.style.pointerEvents = '';
+                });
+            },
+            disableBoard(disabled) { document.querySelectorAll('.cell:not(.taken)').forEach(cell => { cell.classList.toggle('disabled', disabled); }); },
+            highlightWin(combo) { combo.forEach(index => { document.querySelector(`.cell[data-index='${index}']`).classList.add('win'); }); },
+            showBanner(text, isWin) { this.bannerText.textContent = text; this.banner.classList.add('visible'); },
+            hideBanner() { this.banner.classList.remove('visible'); },
+            updateScoreboard() {
+                document.getElementById('score-x').textContent = game.scores.X;
+                document.getElementById('score-o').textContent = game.scores.O;
+                document.getElementById('score-draw').textContent = game.scores.draw;
+            },
+            updateStatus(msg) {}
+        };
+
+      async function sendResultsToTeams(isDraw) {
+    const statusDiv = document.getElementById('sendingStatus');
+    statusDiv.classList.add('show');
+    statusDiv.textContent = '📤 Sending results to teacher...';
+    statusDiv.className = 'sending-status show';
+
+    let resultText = '';
+    if (isDraw) {
+        resultText = "It's a Draw 🤝";
+    } else {
+        resultText = `Player ${game.currentPlayer === 'X' ? '✨' : '🌙'} Wins!`;
     }
 
-    const questions = rawQuizData.map(parseQuestion);
+    const exerciseName = "Past Tenses Tic Tac Toe";
 
-    /* =========================================
-       STATE MANAGEMENT
-       ========================================= */
-    const defaultState = {
-      board: Array(9).fill(null),
-      currentPlayer: 'P1',
-      scores: { P1: 0, P2: 0, Draw: 0 },
-      settings: {
-        quizEnabled: true,
-        muted: false,
-        glyphTheme: 'Magic',
-        gameMode: 'PvP',
-        aiDifficulty: 'Pragmatic',
-        startingPlayer: 'P1'
-      },
-      quizAttempts: 0,
-      currentQuestion: null,
-      pendingMove: null
+    // Безопасные значения
+    const safeTab = (typeof tabSwitchCount !== 'undefined') ? tabSwitchCount : 0;
+    const safeWrong = (typeof wrongAnswers !== 'undefined' && Array.isArray(wrongAnswers)) ? wrongAnswers : [];
+
+    // Список ошибок
+    let wrongText = 'None';
+    if (safeWrong.length > 0) {
+        wrongText = safeWrong.map((w, i) => {
+            return `${i + 1}. Q: "${w.question}" | Chosen: "${w.chosen}" | Correct: "${w.correct}"`;
+        }).join(' || ');
+    }
+
+     const payload = {
+        student_name: studentName || 'Anonymous',
+        score: `${game.scores.X} : ${game.scores.O} (Draws: ${game.scores.draw})`,
+        percentage: roundStats.total > 0 ? Math.round((roundStats.correct / roundStats.total) * 100) + '%' : '0%',
+        time: new Date().toLocaleString(),
+        exercise_name: exerciseName,
+        round_result: resultText,
+        questions_answered: roundStats.total,
+        correct_answers: roundStats.correct,
+        incorrect_answers: roundStats.incorrect,
+        time_spent: (typeof gameStartTime !== 'undefined' && gameStartTime !== null) ? Math.round((Date.now() - gameStartTime) / 1000) + ' sec' : 'N/A',
+        tab_switches: safeTab + ' switches',
+        // ВОТ ГЛАВНЫЙ СЕКРЕТ ИЗ TED'S STORY:
+        errors_text: wrongAnswers.length > 0 ? '\n\n' + wrongAnswers.map((w, i) => (i+1) + '. ' + w.question + ' → Выбрано: ' + w.chosen + ' | Правильно: ' + w.correct).join('\n\n') : '✅ No errors! Perfect!'
     };
 
-    let state = JSON.parse(JSON.stringify(defaultState));
+    console.log('📤 Отправляем:', payload);
 
-    const glyphs = {
-      Standard: { P1: 'X', P2: 'O' },
-      Magic: { P1: '✨', P2: '🌙' },
-      Knight: { P1: '⚔️', P2: '🛡️' }
-    };
-
-    /* =========================================
-       AUDIO SYSTEM (Web Audio API)
-       ========================================= */
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    const audioCtx = new AudioContext();
-
-    function playSound(type) {
-      if (state.settings.muted) return;
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-
-      const now = audioCtx.currentTime;
-
-      if (type === 'correct') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(523.25, now);
-        osc.frequency.exponentialRampToValueAtTime(1046.5, now + 0.1);
-        gain.gain.setValueAtTime(0.1, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-        osc.start(now);
-        osc.stop(now + 0.3);
-      } else if (type === 'incorrect') {
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(150, now);
-        gain.gain.setValueAtTime(0.1, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-        osc.start(now);
-        osc.stop(now + 0.3);
-      } else if (type === 'win') {
-        [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
-          const o = audioCtx.createOscillator();
-          const g = audioCtx.createGain();
-          o.connect(g);
-          g.connect(audioCtx.destination);
-          o.type = 'triangle';
-          o.frequency.value = freq;
-          g.gain.setValueAtTime(0.1, now + i * 0.1);
-          g.gain.exponentialRampToValueAtTime(0.01, now + i * 0.1 + 0.4);
-          o.start(now + i * 0.1);
-          o.stop(now + i * 0.1 + 0.4);
+    try {
+        const response = await fetch(POWER_AUTOMATE_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
         });
-      } else if (type === 'click') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(800, now);
-        gain.gain.setValueAtTime(0.05, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
-        osc.start(now);
-        osc.stop(now + 0.05);
-      }
-    }
-
-    /* =========================================
-       INITIALIZATION & DOM
-       ========================================= */
-    function init() {
-      loadFromStorage();
-      generateStars();
-      renderBoard();
-      updateUI();
-      
-      if (state.settings.startingPlayer === 'P2' && state.settings.gameMode === 'PvAI') {
-        setTimeout(makeAIMove, 500);
-      }
-
-      document.getElementById('settingsBtn').addEventListener('click', () => {
-        document.getElementById('settingsDialog').showModal();
-        playSound('click');
-      });
-
-      document.getElementById('resetBtn').addEventListener('click', () => {
-        resetGame();
-        playSound('click');
-      });
-
-      document.getElementById('shareBtn').addEventListener('click', shareScore);
-
-      document.getElementById('settingMode').addEventListener('change', (e) => {
-        document.getElementById('aiDifficultyGroup').style.display = 
-          e.target.value === 'PvAI' ? 'flex' : 'none';
-      });
-    }
-
-    function generateStars() {
-      const container = document.getElementById('starfield');
-      const count = window.innerWidth < 600 ? 30 : 60;
-      for (let i = 0; i < count; i++) {
-        const star = document.createElement('div');
-        star.className = 'star';
-        star.style.left = Math.random() * 100 + '%';
-        star.style.top = Math.random() * 100 + '%';
-        star.style.width = star.style.height = (Math.random() * 3 + 1) + 'px';
-        star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
-        star.style.setProperty('--max-opacity', Math.random() * 0.7 + 0.3);
-        star.style.animationDelay = Math.random() * 5 + 's';
-        container.appendChild(star);
-      }
-    }
-
-    function renderBoard() {
-      const board = document.getElementById('gameBoard');
-      board.innerHTML = '';
-      for (let i = 0; i < 9; i++) {
-        const cell = document.createElement('button');
-        cell.className = 'cell';
-        cell.dataset.index = i;
-        cell.setAttribute('role', 'gridcell');
-        cell.setAttribute('aria-label', `Row ${Math.floor(i / 3) + 1}, Column ${(i % 3) + 1}, empty`);
-        cell.addEventListener('click', () => handleCellClick(i));
-        board.appendChild(cell);
-      }
-    }
-
-    /* =========================================
-       GAME LOGIC
-       ========================================= */
-    function handleCellClick(index) {
-      if (state.board[index] || checkWinner(state.board)) return;
-      if (state.settings.gameMode === 'PvAI' && state.currentPlayer === 'P2') return;
-
-      state.pendingMove = index;
-
-      if (state.settings.quizEnabled) {
-        openQuiz();
-      } else {
-        executeMove(index);
-      }
-    }
-
-    function executeMove(index) {
-      state.board[index] = state.currentPlayer;
-      const cell = document.querySelector(`.cell[data-index="${index}"]`);
-      cell.textContent = glyphs[state.settings.glyphTheme][state.currentPlayer];
-      cell.classList.add(state.currentPlayer.toLowerCase(), 'pop-in');
-      cell.setAttribute('aria-label', `Row ${Math.floor(index / 3) + 1}, Column ${(index % 3) + 1}, ${state.currentPlayer === 'P1' ? 'Player 1' : 'Player 2'}`);
-      cell.disabled = true;
-      playSound('click');
-
-      const winner = checkWinner(state.board);
-      if (winner) {
-        handleWin(winner);
-      } else if (state.board.every(cell => cell !== null)) {
-        handleDraw();
-      } else {
-        state.currentPlayer = state.currentPlayer === 'P1' ? 'P2' : 'P1';
-        updateUI();
-        
-        if (state.settings.gameMode === 'PvAI' && state.currentPlayer === 'P2') {
-          setTimeout(makeAIMove, 600);
-        }
-      }
-    }
-
-    function checkWinner(board) {
-      const lines = [
-        [0, 1, 2], [3, 4, 5], [6, 7, 8],
-        [0, 3, 6], [1, 4, 7], [2, 5, 8],
-        [0, 4, 8], [2, 4, 6]
-      ];
-      for (const [a, b, c] of lines) {
-        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-          return board[a];
-        }
-      }
-      return null;
-    }
-
-    function handleWin(winner) {
-      state.scores[winner]++;
-      saveToStorage();
-      updateUI();
-      playSound('win');
-      triggerConfetti(100);
-      
-      const name = winner === 'P1' ? (state.settings.gameMode === 'PvAI' ? 'You' : 'Player 1') : (state.settings.gameMode === 'PvAI' ? 'AI' : 'Player 2');
-      document.getElementById('victoryIcon').textContent = state.settings.glyphTheme === 'Magic' ? '👑' : '🏆';
-      document.getElementById('victoryTitle').textContent = `${name} Wins!`;
-      document.getElementById('victoryMessage').textContent = `${name} has conquered the Magic Quest!`;
-      document.getElementById('victoryDialog').showModal();
-    }
-
-    function handleDraw() {
-      state.scores.Draw++;
-      saveToStorage();
-      updateUI();
-      document.getElementById('victoryIcon').textContent = '🤝';
-      document.getElementById('victoryTitle').textContent = 'It\'s a Draw!';
-      document.getElementById('victoryMessage').textContent = 'The forces are balanced. Try again!';
-      document.getElementById('victoryDialog').showModal();
-    }
-
-    function closeVictoryAndReset() {
-      document.getElementById('victoryDialog').close();
-      resetGame();
-    }
-
-    function resetGame() {
-      state.board = Array(9).fill(null);
-      state.currentPlayer = state.settings.startingPlayer;
-      state.pendingMove = null;
-      state.quizAttempts = 0;
-      renderBoard();
-      updateUI();
-      
-      if (state.settings.gameMode === 'PvAI' && state.currentPlayer === 'P2') {
-        setTimeout(makeAIMove, 500);
-      }
-    }
-
-    /* =========================================
-       AI LOGIC
-       ========================================= */
-    function makeAIMove() {
-      if (checkWinner(state.board) || state.board.every(c => c !== null)) return;
-
-      let move;
-      const difficulty = state.settings.aiDifficulty;
-      const available = state.board.map((v, i) => v === null ? i : null).filter(v => v !== null);
-
-      if (difficulty === 'Reckless') {
-        move = available[Math.floor(Math.random() * available.length)];
-      } else if (difficulty === 'Pragmatic') {
-        move = getPragmaticMove();
-      } else {
-        move = getBestMove(state.board, 'P2');
-      }
-
-      // AI bypasses quiz for smooth gameplay, but we show a brief "thinking" state
-      document.getElementById('turnIndicator').textContent = 'AI is conjuring knowledge...';
-      setTimeout(() => {
-        executeMove(move);
-      }, 400);
-    }
-
-    function getPragmaticMove() {
-      // 1. Win if possible
-      for (let i = 0; i < 9; i++) {
-        if (!state.board[i]) {
-          state.board[i] = 'P2';
-          if (checkWinner(state.board)) { state.board[i] = null; return i; }
-          state.board[i] = null;
-        }
-      }
-      // 2. Block opponent win
-      for (let i = 0; i < 9; i++) {
-        if (!state.board[i]) {
-          state.board[i] = 'P1';
-          if (checkWinner(state.board)) { state.board[i] = null; return i; }
-          state.board[i] = null;
-        }
-      }
-      // 3. Take center
-      if (!state.board[4]) return 4;
-      // 4. Random corner
-      const corners = [0, 2, 6, 8].filter(i => !state.board[i]);
-      if (corners.length > 0) return corners[Math.floor(Math.random() * corners.length)];
-      // 5. Random
-      const available = state.board.map((v, i) => v === null ? i : null).filter(v => v !== null);
-      return available[Math.floor(Math.random() * available.length)];
-    }
-
-    function getBestMove(board, player) {
-      const opponent = player === 'P1' ? 'P2' : 'P1';
-      
-      function minimax(b, depth, isMaximizing) {
-        const winner = checkWinner(b);
-        if (winner === 'P2') return 10 - depth;
-        if (winner === 'P1') return depth - 10;
-        if (b.every(cell => cell !== null)) return 0;
-
-        if (isMaximizing) {
-          let best = -Infinity;
-          for (let i = 0; i < 9; i++) {
-            if (!b[i]) {
-              b[i] = 'P2';
-              best = Math.max(best, minimax(b, depth + 1, false));
-              b[i] = null;
-            }
-          }
-          return best;
+        if (response.ok) {
+            statusDiv.textContent = '✅ Results sent to Teams!';
+            statusDiv.className = 'sending-status show success';
         } else {
-          let best = Infinity;
-          for (let i = 0; i < 9; i++) {
-            if (!b[i]) {
-              b[i] = 'P1';
-              best = Math.min(best, minimax(b, depth + 1, true));
-              b[i] = null;
-            }
-          }
-          return best;
+            statusDiv.textContent = '⚠️ Error sending results.';
+            statusDiv.className = 'sending-status show error';
         }
-      }
-
-      let bestVal = -Infinity;
-      let bestMove = -1;
-      for (let i = 0; i < 9; i++) {
-        if (!board[i]) {
-          board[i] = 'P2';
-          const moveVal = minimax(board, 0, false);
-          board[i] = null;
-          if (moveVal > bestVal) {
-            bestMove = i;
-            bestVal = moveVal;
-          }
-        }
-      }
-      return bestMove;
+    } catch (error) {
+        console.error('❌ Teams error:', error);
+        statusDiv.textContent = '⚠️ Network error.';
+        statusDiv.className = 'sending-status show error';
     }
 
-    /* =========================================
-       QUIZ SYSTEM
-       ========================================= */
-    function openQuiz() {
-      state.quizAttempts = 0;
-      state.currentQuestion = questions[Math.floor(Math.random() * questions.length)];
-      
-      document.getElementById('quizQuestion').textContent = state.currentQuestion.question;
-      document.getElementById('quizFeedback').textContent = '';
-      document.getElementById('quizFeedback').className = 'feedback-msg';
-      updateAttemptsUI();
-
-      const optionsContainer = document.getElementById('quizOptions');
-      optionsContainer.innerHTML = '';
-      
-      state.currentQuestion.options.forEach((opt, idx) => {
-        const btn = document.createElement('button');
-        btn.className = 'quiz-option';
-        btn.textContent = opt;
-        btn.dataset.index = idx + 1;
-        btn.setAttribute('role', 'radio');
-        btn.setAttribute('aria-checked', 'false');
-        btn.addEventListener('click', () => handleQuizAnswer(idx + 1, btn));
-        optionsContainer.appendChild(btn);
-      });
-
-      document.getElementById('quizDialog').showModal();
-    }
-
-    function handleQuizAnswer(selected, btnElement) {
-      const correct = state.currentQuestion.correct;
-      const feedback = document.getElementById('quizFeedback');
-      const options = document.querySelectorAll('.quiz-option');
-
-      if (selected === correct) {
-        // Correct
-        btnElement.classList.add('correct');
-        feedback.textContent = '✨ Correct! The spell is cast!';
-        feedback.className = 'feedback-msg success';
-        playSound('correct');
-        triggerConfetti(20);
-        
-        options.forEach(opt => opt.disabled = true);
-        
-        setTimeout(() => {
-          document.getElementById('quizDialog').close();
-          executeMove(state.pendingMove);
-        }, 1200);
-      } else {
-        // Incorrect
-        state.quizAttempts++;
-        btnElement.classList.add('incorrect');
-        btnElement.disabled = true;
-        playSound('incorrect');
-        
-        if (state.quizAttempts >= 3) {
-          // Mercy rule
-          feedback.textContent = `Mercy rule! The answer was: ${state.currentQuestion.options[correct - 1]}`;
-          feedback.className = 'feedback-msg error';
-          options.forEach(opt => {
-            if (parseInt(opt.dataset.index) === correct) opt.classList.add('correct');
-            opt.disabled = true;
-          });
-          
-          setTimeout(() => {
-            document.getElementById('quizDialog').close();
-            executeMove(state.pendingMove);
-          }, 2000);
-        } else {
-          feedback.textContent = 'Not quite. The magic resists. Try again!';
-          feedback.className = 'feedback-msg error';
-          updateAttemptsUI();
-        }
-      }
-    }
-
-    function updateAttemptsUI() {
-      document.getElementById('quizAttempts').textContent = `Attempts: ${state.quizAttempts} / 3`;
-    }
-
-    /* =========================================
-       UI & SETTINGS
-       ========================================= */
-    function updateUI() {
-      document.getElementById('scoreP1').textContent = state.scores.P1;
-      document.getElementById('scoreP2').textContent = state.scores.P2;
-      document.getElementById('scoreDraw').textContent = state.scores.Draw;
-      
-      const p1Name = state.settings.gameMode === 'PvAI' ? 'You' : 'Player 1';
-      const p2Name = state.settings.gameMode === 'PvAI' ? 'AI' : 'Player 2';
-      document.getElementById('labelP1').textContent = p1Name;
-      document.getElementById('labelP2').textContent = p2Name;
-
-      const currentName = state.currentPlayer === 'P1' ? p1Name : p2Name;
-      document.getElementById('turnIndicator').textContent = `${currentName}'s Turn (${glyphs[state.settings.glyphTheme][state.currentPlayer]})`;
-    }
-
-    function saveSettings() {
-      state.settings.quizEnabled = document.getElementById('settingQuiz').checked;
-      state.settings.muted = !document.getElementById('settingSound').checked;
-      state.settings.glyphTheme = document.getElementById('settingGlyphs').value;
-      state.settings.gameMode = document.getElementById('settingMode').value;
-      state.settings.aiDifficulty = document.getElementById('settingDifficulty').value;
-      state.settings.startingPlayer = document.getElementById('settingStarter').value;
-      
-      saveToStorage();
-      document.getElementById('settingsDialog').close();
-      resetGame();
-      playSound('click');
-    }
-
-    function exportSettings() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state.settings));
-      const downloadAnchorNode = document.createElement('a');
-      downloadAnchorNode.setAttribute("href", dataStr);
-      downloadAnchorNode.setAttribute("download", "magic_quest_settings.json");
-      document.body.appendChild(downloadAnchorNode);
-      downloadAnchorNode.click();
-      downloadAnchorNode.remove();
-    }
-
-    function importSettings(input) {
-      const file = input.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const imported = JSON.parse(e.target.result);
-          state.settings = { ...state.settings, ...imported };
-          saveToStorage();
-          document.getElementById('settingQuiz').checked = state.settings.quizEnabled;
-          document.getElementById('settingSound').checked = !state.settings.muted;
-          document.getElementById('settingGlyphs').value = state.settings.glyphTheme;
-          document.getElementById('settingMode').value = state.settings.gameMode;
-          document.getElementById('settingDifficulty').value = state.settings.aiDifficulty;
-          document.getElementById('settingStarter').value = state.settings.startingPlayer;
-          document.getElementById('aiDifficultyGroup').style.display = state.settings.gameMode === 'PvAI' ? 'flex' : 'none';
-          alert('Settings imported successfully!');
-        } catch (err) {
-          alert('Invalid JSON file');
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    function shareScore() {
-      const text = `🏆 Magic Quest Score!\nPlayer 1: ${state.scores.P1} | Player 2: ${state.scores.P2} | Draws: ${state.scores.Draw}\nCan you beat my score?`;
-      if (navigator.share) {
-        navigator.share({ title: 'Magic Quest Score', text: text }).catch(console.error);
-      } else {
-        navigator.clipboard.writeText(text).then(() => {
-          const btn = document.getElementById('shareBtn');
-          const original = btn.textContent;
-          btn.textContent = 'Copied!';
-          setTimeout(() => btn.textContent = original, 2000);
+    try {
+        await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                student_name: studentName || 'Anonymous',
+                exercise_name: exerciseName,
+                score: payload.score,
+                percentage: payload.percentage,
+                time: payload.time,
+                time_spent: 'Game mode',
+                tab_switches: safeTab,
+                wrong_answers: wrongText
+            })
         });
-      }
+    } catch (e) {
+        console.log('Sheets error:', e);
     }
 
-    /* =========================================
-       STORAGE
-       ========================================= */
-    function saveToStorage() {
-      localStorage.setItem('magicQuestState', JSON.stringify({
-        scores: state.scores,
-        settings: state.settings
-      }));
-    }
+    setTimeout(() => {
+        statusDiv.classList.remove('show');
+    }, 5000);
+}
 
-    function loadFromStorage() {
-      const saved = localStorage.getItem('magicQuestState');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        state.scores = parsed.scores || state.scores;
-        state.settings = { ...state.settings, ...parsed.settings };
-        
-        // Apply to inputs
-        document.getElementById('settingQuiz').checked = state.settings.quizEnabled;
-        document.getElementById('settingSound').checked = !state.settings.muted;
-        document.getElementById('settingGlyphs').value = state.settings.glyphTheme;
-        document.getElementById('settingMode').value = state.settings.gameMode;
-        document.getElementById('settingDifficulty').value = state.settings.aiDifficulty;
-        document.getElementById('settingStarter').value = state.settings.startingPlayer;
-        document.getElementById('aiDifficultyGroup').style.display = state.settings.gameMode === 'PvAI' ? 'flex' : 'none';
-      }
-    }
+        document.getElementById('mode-select').addEventListener('change', (e) => {
+            document.getElementById('ai-diff-group').style.display = e.target.value === 'pve' ? 'block' : 'none';
+        });
 
-    /* =========================================
-       EFFECTS
-       ========================================= */
-    function triggerConfetti(count) {
-      const colors = ['#ff6b9d', '#7b68ee', '#ffd93d', '#00d9a5', '#ffffff'];
-      for (let i = 0; i < count; i++) {
-        const conf = document.createElement('div');
-        conf.className = 'confetti';
-        conf.style.left = Math.random() * 100 + 'vw';
-        conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-        conf.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
-        conf.style.setProperty('--x', (Math.random() - 0.5) * 300 + 'px');
-        conf.style.width = (Math.random() * 8 + 5) + 'px';
-        conf.style.height = (Math.random() * 8 + 5) + 'px';
-        conf.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-        document.body.appendChild(conf);
-        setTimeout(() => conf.remove(), 3500);
-      }
-    }
+        const confetti = {
+            canvas: document.getElementById('confetti-canvas'), ctx: null, particles: [], animationId: null,
+            colors: ['#ffd93d', '#ff6b9d', '#7b68ee', '#00d9a5', '#ffffff'],
+            init() { this.ctx = this.canvas.getContext('2d'); this.resize(); window.addEventListener('resize', () => this.resize()); },
+            resize() { this.canvas.width = window.innerWidth; this.canvas.height = window.innerHeight; },
+            start(duration = 4000) {
+                const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; if (prefersReducedMotion) return;
+                this.particles = [];
+                for (let i = 0; i < 150; i++) {
+                    this.particles.push({ x: Math.random() * this.canvas.width, y: Math.random() * this.canvas.height - this.canvas.height, size: Math.random() * 8 + 4, color: this.colors[Math.floor(Math.random() * this.colors.length)], speedY: Math.random() * 3 + 2, speedX: Math.random() * 2 - 1, rotation: Math.random() * 360, rotationSpeed: Math.random() * 10 - 5, shape: Math.random() > 0.5 ? 'circle' : 'square' });
+                }
+                this.animate(); setTimeout(() => this.stop(), duration);
+            },
+            burst(count = 50, pos = { x: window.innerWidth/2, y: window.innerHeight/2 }) {
+                const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; if (prefersReducedMotion) return;
+                for (let i = 0; i < count; i++) {
+                    this.particles.push({ x: pos.x, y: pos.y, size: Math.random() * 6 + 3, color: this.colors[Math.floor(Math.random() * this.colors.length)], speedY: (Math.random() - 0.5) * 4, speedX: (Math.random() - 0.5) * 4, rotation: Math.random() * 360, rotationSpeed: Math.random() * 10 - 5, shape: Math.random() > 0.5 ? 'circle' : 'square', life: 60 });
+                }
+                if (!this.animationId) this.animate();
+            },
+            animate() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.particles = this.particles.filter(p => {
+                    if (p.life !== undefined) { p.life--; if (p.life <= 0) return false; }
+                    p.y += p.speedY; p.x += p.speedX; p.rotation += p.rotationSpeed;
+                    this.ctx.save(); this.ctx.translate(p.x, p.y); this.ctx.rotate((p.rotation * Math.PI) / 180); this.ctx.fillStyle = p.color;
+                    if (p.shape === 'circle') { this.ctx.beginPath(); this.ctx.arc(0, 0, p.size/2, 0, Math.PI * 2); this.ctx.fill(); } 
+                    else { this.ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size); }
+                    this.ctx.restore();
+                    return p.y < this.canvas.height + 20;
+                });
+                if (this.particles.length > 0) { this.animationId = requestAnimationFrame(() => this.animate()); } else { this.animationId = null; }
+            },
+            stop() { cancelAnimationFrame(this.animationId); this.animationId = null; this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); }
+        };
 
-    // Start
-    init();
-  </script>
+        starSystem.init(); confetti.init();
+                // === ОТСЛЕЖИВАНИЕ ВКЛАДОК ===
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                tabSwitchCount++;
+                console.log('⚠️ Переключение вкладки #' + tabSwitchCount);
+            } else {
+                if (tabSwitchCount > 0 && !isWarningShown && game.gameActive) {
+                    isWarningShown = true;
+                    var w = document.getElementById('tab-switch-warning');
+                    if (w) w.classList.add('active');
+                }
+            }
+        });
+
+        function closeTabWarning() {
+            var w = document.getElementById('tab-switch-warning');
+            if (w) w.classList.remove('active');
+            isWarningShown = false;
+        }
+        // === КОНЕЦ ===
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 's' && e.ctrlKey) { e.preventDefault(); ui.openSettings(); }
+        });
+    </script>
+        <div id="tab-switch-warning" class="tab-warning-overlay">
+        <div class="tab-warning-box">
+            <span class="warning-icon">⚠️</span>
+            <h3>Attention!</h3>
+            <p>You have switched away from the game tab.<br>This action has been recorded by the system.</p>
+            <button class="warning-btn" onclick="closeTabWarning()">Got it, continue</button>
+        </div>
+    </div>
 </body>
 </html>
