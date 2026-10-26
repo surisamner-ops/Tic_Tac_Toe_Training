@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✨ Russian Language Tic Tac Toe</title>
+    <title>✨ Present Tenses Tic Tac Toe</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Outfit:wght@300;400;600;800&family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
@@ -357,27 +357,39 @@ let isWarningShown = false;
         };
 
         const rawQuizData = [
-    "В суффиксе прилагательного стекля___ый пишется,н,нн,ь,2",
-    "Причастие с НЕ пишется раздельно если при нем есть,зависимое слово,синоним без НЕ,приставка недо,1",
-    "В корне слова заг___рать пропущена буква,а,о,е,1",
-    "В слове пр___красный пропущена буква,е,и,я,1",
-    "В окончании глагола он стро___т пишется буква,е,и,я,1",
-    "В сложносочиненном предложении запятая перед И не ставится при наличии,общего второстепенного члена,однородных членов,вводного слова,1",
-    "Придаточное в предложении Я знаю что ты придешь является,определительным,изъяснительным,обстоятельственным,2",
-    "В предложении Я оглянулся никого не было между частями ставится,запятая,тире,двоеточие,3",
-    "Причастный оборот обособляется запятыми если стоит после,определяемого существительного,сказуемого,дополнения,1",
-    "Вводное слово к счастью на письме выделяется,запятыми,тире,скобками,1",
-    "Деепричастный оборот в предложении обособляется,всегда,никогда,только в начале,1",
-    "Грамматическая основа в предложении Мы с другом пошли в кино это,мы с другом пошли,мы пошли,друг пошел,2",
-    "Тире в бессоюзном сложном предложении ставится если первая часть указывает на,условие,причину,время,1",
-    "Двоеточие в БСП ставится если вторая часть,раскрывает содержание первой,противопоставляется первой,указывает на быструю смену событий,1",
-    "Фразеологизм бить баклуши означает,усердно работать,бездельничать,играть в музыку,2",
-    "Выражение золотые руки является примером,эпитета,метафоры,сравнения,2",
-    "Слова огонь и пламя по лексическому значению являются,антонимами,синонимами,омонимами,2",
-    "Сказуемое был врачом в предложении является,простым глагольным,составным именным,составным глагольным,2",
-    "В суффиксе действительного причастия настоящего времени от глагола клеить пишется,ущ,ющ,ащ,2",
-    "В сочетании в ___ении дня на конце пишется,е,и,о,1"
-];
+            "I ___ in the security queue for over an hour, and we still haven't reached the front.,wait,am waiting,have been waiting,3",
+            "The airport shuttle ___ from the hotel lobby every hour on the hour.,departs,is departing,has departed,1",
+            "My travel buddy ___ to pack the universal adapter! It’s so frustrating.,always forgets,is always forgetting,has always forgotten,2",
+            "We ___ four different countries this year alone.,visit,are visiting,have visited,3",
+            "This vintage leather suitcase ___ to my grandmother.,belongs,is belonging,has belonged,1",
+            "You look completely exhausted! ___ all morning?,Do you hike,Are you hiking,Have you been hiking,3",
+            "Our connecting flight to Tokyo ___ at 11:45 PM tonight.,leaves,is leaving,has left,1",
+            "I can't find my boarding pass. I think I ___ it at the café.,lose,am losing,have lost,3",
+            "The number of digital nomads in this city ___ rapidly these days.,grows,is growing,has grown,2",
+            "So far this trip, I ___ seven different local dishes.,try,am trying,have tried,3",
+            "She ___ Japanese for six months in preparation for her trip to Kyoto.,learns,is learning,has been learning,3",
+            "Water ___ at 0 degrees Celsius, which is why the pipes burst in winter.,freezes,is freezing,has frozen,1",
+            "He ___ his passport in the hotel safe! It causes so much stress.,always leaves,is always leaving,has always left,2",
+            "I ___ this tour guide since we were in university together.,know,am knowing,have known,3",
+            "This itinerary ___ a bit too ambitious for just three days.,seems,is seeming,has seemed,1",
+            "Why are your clothes so wrinkled? ___ in them on the train?,Do you sleep,Are you sleeping,Have you been sleeping,3",
+            "The new museum exhibition ___ to the public next Monday.,opens,is opening,has opened,1",
+            "We ___ our tickets for the midnight train to Prague.,just book,are just booking,have just booked,3",
+            "The local currency ___ value against the dollar these days.,loses,is losing,has lost,2",
+            "How many times ___ to South America?,do you be,are you being,have you been,3",
+            "They ___ across the country for three weeks and are finally reaching the coast.,drive,are driving,have been driving,3",
+            "A high-speed train ___ Madrid and Barcelona in under three hours.,connects,is connecting,has connected,1",
+            "My sister ___ about the legroom on budget airlines!,always complains,is always complaining,has always complained,2",
+            "I ___ my cousins since they moved to Australia last year.,don't see,am not seeing,haven't seen,3",
+            "This heavy backpack ___ exactly 23 kilograms.,weighs,is weighing,has weighed,1",
+            "My feet are killing me because I ___ around the old town all afternoon.,walk,am walking,have been walking,3",
+            "The last ferry to the island ___ at 8:00 PM sharp.,returns,is returning,has returned,1",
+            "Someone ___ my luggage from the carousel! What should I do?,steals,is stealing,has stolen,3",
+            "More and more tourists ___ eco-friendly accommodations nowadays.,choose,are choosing,have chosen,2",
+            "So far today, we ___ over 500 kilometers on the road.,cover,are covering,have covered,3"
+        ];
+
+  
 
         const quizData = rawQuizData.map(q => {
             const parts = q.split(',');
