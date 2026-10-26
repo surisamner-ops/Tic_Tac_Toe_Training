@@ -224,7 +224,7 @@
         <header>
             <div class="logo">
                 <span class="logo-icon">⏳</span>
-                <h1>Russian Language Tic Tac Toe</h1>
+                <h1>Present Tenses Tic Tac Toe</h1>
             </div>
             <div class="controls">
                 <button class="btn" onclick="game.resetRound()" aria-label="Start New Round">🔄 New</button>
@@ -247,7 +247,7 @@
 
     <div class="modal-overlay" id="quiz-modal" role="dialog" aria-modal="true" aria-labelledby="quiz-title">
         <div class="quiz-modal">
-            <div class="quiz-header"><span class="quiz-icon">📚</span><span class="quiz-title" id="quiz-title">Russian Language Challenge!</span></div>
+            <div class="quiz-header"><span class="quiz-icon">📚</span><span class="quiz-title" id="quiz-title">English Language Challenge!</span></div>
             <div class="quiz-progress" id="quiz-progress"><div class="progress-dot active"></div><div class="progress-dot"></div><div class="progress-dot"></div></div>
             <div class="quiz-question" id="quiz-question">Loading question...</div>
             <div class="quiz-options" id="quiz-options" role="radiogroup"></div>
@@ -635,7 +635,7 @@ isWarningShown = false;
         resultText = `Player ${game.currentPlayer === 'X' ? '✨' : '🌙'} Wins!`;
     }
 
-    const exerciseName = "Russian Language Tic Tac Toe";
+    const exerciseName = "English Language Tic Tac Toe";
 
     // Безопасные значения
     const safeTab = (typeof tabSwitchCount !== 'undefined') ? tabSwitchCount : 0;
