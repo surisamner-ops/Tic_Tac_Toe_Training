@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>✨ Present Tenses Tic Tac Toe</title>
+    <title>✨ Russian Language Tic Tac Toe</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;600;700&family=Outfit:wght@300;400;600;800&family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
@@ -23,37 +23,31 @@
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; padding: 0; background: linear-gradient(135deg, var(--bg-deep), var(--bg-mid), var(--bg-light)); background-size: 400% 400%; animation: gradientShift 20s ease infinite; color: var(--text-primary); font-family: var(--font-body); height: 100vh; display: flex; flex-direction: column; overflow: hidden; position: relative; }
         @keyframes gradientShift { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-        
         #stars-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
         .star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle var(--duration, 3s) ease-in-out infinite var(--delay, 0s); opacity: var(--opacity, 0.8); box-shadow: 0 0 10px 2px rgba(255, 255, 255, 0.6); }
         @keyframes twinkle { 0%, 100% { opacity: var(--opacity, 0.3); transform: scale(1); } 50% { opacity: 1; transform: scale(1.3); } }
         .star.shooting { width: 2px !important; height: 60px !important; border-radius: 1px; background: linear-gradient(to bottom, transparent, #fff, transparent); animation: shoot 2s linear forwards; opacity: 0; }
         @keyframes shoot { 0% { transform: translate(0, 0) rotate(45deg); opacity: 1; } 100% { transform: translate(100vw, 100vh) rotate(45deg); opacity: 0; } }
-        
         .app-container { position: relative; z-index: 10; display: flex; flex-direction: column; height: 100%; }
         header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); box-shadow: var(--shadow-soft); }
         .logo { display: flex; align-items: center; gap: 0.75rem; }
         .logo-icon { font-size: 1.8rem; animation: float 3s ease-in-out infinite; }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
         h1 { font-family: var(--font-display); font-size: 1.3rem; margin: 0; background: linear-gradient(135deg, var(--accent-gold), var(--accent-primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 800; letter-spacing: -0.5px; }
-        
         .controls { display: flex; gap: 0.5rem; }
         .btn { background: var(--glass-bg); border: 1px solid var(--glass-border); color: var(--text-primary); padding: 0.5rem 1rem; border-radius: 12px; font-family: var(--font-body); font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: var(--transition-smooth); display: flex; align-items: center; gap: 0.4rem; backdrop-filter: blur(10px); }
         .btn:hover { background: var(--glass-highlight); border-color: var(--accent-secondary); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(123, 104, 238, 0.3); }
         .btn.primary { background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary)); border: none; color: white; }
         .btn.primary:hover { box-shadow: 0 6px 25px rgba(255, 107, 157, 0.5); transform: translateY(-3px); }
         .btn:active { transform: translateY(0); }
-        
         main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1rem; position: relative; }
         #victory-banner { height: 0; overflow: hidden; transition: height 0.4s ease; margin-bottom: 0; text-align: center; width: 100%; max-width: 500px; }
         #victory-banner.visible { height: 4rem; margin-bottom: 1rem; }
         #victory-text { font-family: var(--font-display); font-size: 1.6rem; font-weight: 800; background: linear-gradient(135deg, var(--accent-gold), var(--accent-primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-transform: uppercase; letter-spacing: 2px; opacity: 0; transform: translateY(-10px); transition: all 0.3s ease 0.1s; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
         #victory-banner.visible #victory-text { opacity: 1; transform: translateY(0); }
-        
         .board-container { width: 92vmin; height: 92vmin; max-width: 520px; max-height: 520px; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); gap: 2vmin; padding: 2vmin; background: var(--glass-bg); border-radius: 24px; border: 1px solid var(--glass-border); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: var(--shadow-glow), var(--shadow-soft); position: relative; overflow: hidden; }
         .board-container::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(123,104,238,0.1) 0%, transparent 70%); animation: pulse 4s ease-in-out infinite; pointer-events: none; }
         @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.1); opacity: 0.8; } }
-        
         .cell { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: clamp(2.5rem, 11vmin, 4.5rem); cursor: pointer; transition: var(--transition-smooth); position: relative; user-select: none; overflow: hidden; }
         .cell::after { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); opacity: 0; transition: opacity 0.3s; }
         .cell:hover:not(.taken):not(.disabled) { background: rgba(255, 255, 255, 0.12); border-color: var(--accent-secondary); transform: translateY(-3px); box-shadow: 0 10px 30px rgba(123, 104, 238, 0.3); }
@@ -63,21 +57,19 @@
         .cell.disabled { cursor: not-allowed; opacity: 0.5; pointer-events: none; filter: grayscale(0.8); }
         .cell.win { background: linear-gradient(135deg, rgba(255,217,61,0.3), rgba(255,107,157,0.3)) !important; border-color: var(--accent-gold) !important; box-shadow: 0 0 30px rgba(255, 217, 61, 0.5) !important; animation: winPulse 1.5s ease-in-out infinite; }
         @keyframes winPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-        
         .glyph { font-family: var(--font-display); font-weight: 700; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; z-index: 2; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
         .glyph.x { color: var(--accent-primary); }
         .glyph.o { color: var(--accent-secondary); }
         @keyframes popIn { from { transform: scale(0) rotate(-20deg); opacity: 0; } to { transform: scale(1) rotate(0); opacity: 1; } }
-        
         footer { background: var(--glass-bg); padding: 1rem 1.5rem; display: flex; justify-content: space-around; align-items: center; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--glass-border); box-shadow: 0 -4px 20px rgba(0,0,0,0.3); }
         .score-box { text-align: center; min-width: 75px; padding: 0.5rem; background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid var(--glass-border); }
         .score-label { font-size: 0.7rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 0.3rem; font-weight: 600; }
         .score-val { font-family: var(--font-display); font-size: 2rem; font-weight: 800; color: var(--accent-gold); text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
-        
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 12, 41, 0.85); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 100; opacity: 0; visibility: hidden; transition: var(--transition-smooth); padding: 1rem; }
         .modal-overlay.active { opacity: 1; visibility: visible; }
         .quiz-modal { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2rem; width: 100%; max-width: 500px; box-shadow: var(--shadow-glow), var(--shadow-soft); transform: translateY(20px); transition: transform 0.3s ease; position: relative; overflow: hidden; }
         .modal-overlay.active .quiz-modal { transform: translateY(0); }
+        .quiz-modal::before { content: ''; position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1; transform: rotate(15deg); }
         .quiz-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border); }
         .quiz-icon { font-size: 1.8rem; animation: bounce 2s ease infinite; }
         @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
@@ -105,7 +97,6 @@
         .quiz-progress { display: flex; gap: 0.3rem; margin-bottom: 1rem; justify-content: center; }
         .progress-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--glass-border); transition: var(--transition-smooth); }
         .progress-dot.active { background: var(--accent-gold); transform: scale(1.3); }
-        
         dialog { background: var(--glass-bg); color: var(--text-primary); border: 1px solid var(--glass-border); border-radius: 24px; padding: 1.5rem; width: 90%; max-width: 420px; box-shadow: var(--shadow-glow), var(--shadow-soft); margin: auto; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
         dialog::backdrop { background: rgba(15, 12, 41, 0.7); backdrop-filter: blur(5px); }
         dialog h2 { font-family: var(--font-display); color: var(--accent-gold); margin: 0 0 1.5rem 0; text-align: center; font-size: 1.4rem; }
@@ -114,17 +105,14 @@
         select { width: 100%; padding: 0.75rem 1rem; background: rgba(255,255,255,0.1); border: 1px solid var(--glass-border); color: var(--text-primary); border-radius: 12px; font-family: var(--font-body); font-size: 1rem; cursor: pointer; transition: var(--transition-smooth); }
         select:focus { outline: none; border-color: var(--accent-secondary); box-shadow: 0 0 0 3px rgba(123, 104, 238, 0.3); }
         .dialog-actions { display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--glass-border); }
-        
         #confetti-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 99; }
         :focus-visible { outline: 2px solid var(--accent-gold); outline-offset: 2px; }
-        
         @media (max-height: 700px) { header { padding: 0.75rem 1rem; } h1 { font-size: 1.1rem; } .board-container { width: 88vmin; height: 88vmin; } footer { padding: 0.75rem 1rem; } .quiz-modal { padding: 1.5rem; } }
         @media (max-width: 400px) { .controls { gap: 0.3rem; } .btn { padding: 0.4rem 0.7rem; font-size: 0.8rem; } .score-val { font-size: 1.6rem; } }
         @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } }
-        
         .name-form-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 12, 41, 0.95); backdrop-filter: blur(15px); display: flex; align-items: center; justify-content: center; z-index: 200; padding: 1rem; }
         .name-form-overlay.hidden { display: none; }
-        .name-form { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2.5rem; width: 100%; max-width: 420px; box-shadow: var(--shadow-glow), var(--shadow-soft); text-align: center; position: relative; }
+        .name-form { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 24px; padding: 2.5rem; width: 100%; max-width: 420px; box-shadow: var(--shadow-glow), var(--shadow-soft); text-align: center; }
         .name-form h2 { font-family: var(--font-display); font-size: 1.8rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, var(--accent-gold), var(--accent-primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
         .name-form p { color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.95rem; }
         .name-input { width: 100%; padding: 0.9rem 1.2rem; background: rgba(255,255,255,0.08); border: 2px solid var(--glass-border); border-radius: 12px; color: var(--text-primary); font-family: var(--font-body); font-size: 1.1rem; text-align: center; margin-bottom: 1.5rem; transition: var(--transition-smooth); }
@@ -132,29 +120,60 @@
         .name-input:focus { outline: none; border-color: var(--accent-secondary); box-shadow: 0 0 0 3px rgba(123, 104, 238, 0.3); background: rgba(255,255,255,0.12); }
         .start-btn { width: 100%; padding: 1rem; background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary)); color: white; border: none; border-radius: 12px; font-family: var(--font-display); font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: var(--transition-smooth); }
         .start-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(255, 107, 157, 0.5); }
-        
-        .sending-status { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: blur(15px); padding: 10px 20px; border-radius: 50px; font-size: 0.9rem; color: var(--text-secondary); z-index: 150; opacity: 0; visibility: hidden; transition: var(--transition-smooth); white-space: nowrap; }
+        .sending-status { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: blur(15px); padding: 10px 20px; border-radius: 50px; font-size: 0.9rem; color: var(--text-secondary); z-index: 150; opacity: 0; visibility: hidden; transition: var(--transition-smooth); }
         .sending-status.show { opacity: 1; visibility: visible; }
         .sending-status.success { color: var(--success); border-color: var(--success); }
         .sending-status.error { color: var(--error); border-color: var(--error); }
-        
-        .back-to-exercises-btn {
-            position: absolute; top: 20px; left: 20px; width: 50px; height: 50px;
-            background: linear-gradient(135deg, #c084fc, #60a5fa); border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 50%; color: white; font-size: 1.2em; font-weight: bold; cursor: pointer;
-            z-index: 1000; box-shadow: 0 4px 20px rgba(192, 132, 252, 0.4); display: flex;
-            align-items: center; justify-content: center; text-decoration: none; transition: all 0.3s ease; opacity: 0.9;
+                .back-to-exercises-btn {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #c084fc, #60a5fa);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            color: white;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(192, 132, 252, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            opacity: 0.9;
         }
-        .back-to-exercises-btn:hover { transform: translateY(-5px) scale(1.1); box-shadow: 0 8px 30px rgba(192, 132, 252, 0.6); opacity: 1; }
+        .back-to-exercises-btn:hover {
+            transform: translateY(-5px) scale(1.1);
+            box-shadow: 0 8px 30px rgba(192, 132, 252, 0.6);
+            opacity: 1;
+        }
         .back-to-exercises-btn .btn-text {
-            position: absolute; left: 60px; background: rgba(192, 132, 252, 0.15); backdrop-filter: blur(10px);
-            border: 1px solid rgba(192, 132, 252, 0.4); padding: 8px 16px; border-radius: 50px;
-            font-family: 'Comfortaa', cursive; font-size: 0.9em; font-weight: 600; color: #e9d5ff;
-            white-space: nowrap; opacity: 0; transition: all 0.3s ease; pointer-events: none; letter-spacing: 0.5px;
+            position: absolute;
+            left: 85px;
+            background: rgba(192, 132, 252, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(192, 132, 252, 0.4);
+            padding: 10px 18px;
+            border-radius: 50px;
+            font-family: 'Comfortaa', cursive;
+            font-size: 1em;
+            font-weight: 600;
+            color: #e9d5ff;
+            white-space: nowrap;
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            letter-spacing: 0.5px;
         }
-        .back-to-exercises-btn:hover .btn-text { opacity: 1; transform: translateX(5px); }
-        
-        .tab-warning-overlay {
+        .back-to-exercises-btn:hover .btn-text {
+            opacity: 1;
+            transform: translateX(5px);
+        }
+                .tab-warning-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(15, 12, 41, 0.85); backdrop-filter: blur(8px);
             display: flex; align-items: center; justify-content: center;
@@ -164,7 +183,8 @@
         .tab-warning-box {
             background: var(--glass-bg); border: 2px solid var(--error);
             border-radius: 24px; padding: 2rem; text-align: center;
-            max-width: 400px; width: 90%; box-shadow: 0 0 40px rgba(255, 107, 107, 0.3);
+            max-width: 400px; width: 90%;
+            box-shadow: 0 0 40px rgba(255, 107, 107, 0.3);
             transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .tab-warning-overlay.active .tab-warning-box { transform: scale(1); }
@@ -182,12 +202,12 @@
 <body>
     <div class="name-form-overlay" id="nameFormOverlay">
         <div class="name-form">
-            <a href="../index.html" class="back-to-exercises-btn">
-                <span>←</span>
-                <span class="btn-text">Back to exercises</span>
-            </a>
-            <div style="font-size: 3rem; margin-bottom: 1rem; animation: float 3s ease-in-out infinite;">✈️</div>
-            <h2>Present Tenses Tic Tac Toe</h2>
+            <a href="../index.html" class="back-to-exercises-btn" onclick="localStorage.setItem('lastActiveTab', 'practice'); localStorage.setItem('returnFromExercise', 'true')">
+    <span>←</span>
+    <span class="btn-text">Back to exercises</span>
+</a>
+            <div style="font-size: 3rem; margin-bottom: 1rem; animation: float 3s ease-in-out infinite;">⏳</div>
+            <h2>Russian Language Tic Tac Toe</h2>
             <p>Please enter your name to start the game</p>
             <input type="text" class="name-input" id="studentName" placeholder="Your name" autocomplete="off">
             <button class="start-btn" onclick="startGame()">Start Game ✨</button>
@@ -196,12 +216,15 @@
 
     <div id="stars-container"></div>
     <canvas id="confetti-canvas"></canvas>
-    
     <div class="app-container">
+        <a href="../index.html" class="back-to-exercises-btn" onclick="localStorage.setItem('lastActiveTab', 'practice'); localStorage.setItem('returnFromExercise', 'true')">
+    <span>←</span>
+    <span class="btn-text">Back to exercises</span>
+</a>
         <header>
             <div class="logo">
-                <span class="logo-icon">✈️</span>
-                <h1>Present Tenses Tic Tac Toe</h1>
+                <span class="logo-icon">⏳</span>
+                <h1>Russian Language Tic Tac Toe</h1>
             </div>
             <div class="controls">
                 <button class="btn" onclick="game.resetRound()" aria-label="Start New Round">🔄 New</button>
@@ -224,7 +247,7 @@
 
     <div class="modal-overlay" id="quiz-modal" role="dialog" aria-modal="true" aria-labelledby="quiz-title">
         <div class="quiz-modal">
-            <div class="quiz-header"><span class="quiz-icon">📚</span><span class="quiz-title" id="quiz-title">Grammar Challenge!</span></div>
+            <div class="quiz-header"><span class="quiz-icon">📚</span><span class="quiz-title" id="quiz-title">Russian Language Challenge!</span></div>
             <div class="quiz-progress" id="quiz-progress"><div class="progress-dot active"></div><div class="progress-dot"></div><div class="progress-dot"></div></div>
             <div class="quiz-question" id="quiz-question">Loading question...</div>
             <div class="quiz-options" id="quiz-options" role="radiogroup"></div>
@@ -243,7 +266,7 @@
                 <select id="glyph-select">
                     <option value="standard">Standard (X / O)</option>
                     <option value="magic">Magic (✨ / 🌙)</option>
-                    <option value="travel">Travel (✈️ / 🧳)</option>
+                    <option value="knight">Knight (⚔ / 🛡)</option>
                 </select>
             </div>
             <div class="form-group">
@@ -264,8 +287,8 @@
             <div class="form-group">
                 <label for="first-move">First Move</label>
                 <select id="first-move">
-                    <option value="X">Player 1 / ✈️</option>
-                    <option value="O">Player 2 / 🧳</option>
+                    <option value="X">Player 1 / ✨</option>
+                    <option value="O">Player 2 / 🌙</option>
                 </select>
             </div>
             <div class="form-group">
@@ -278,25 +301,16 @@
         </form>
     </dialog>
 
-    <div id="tab-switch-warning" class="tab-warning-overlay">
-        <div class="tab-warning-box">
-            <span class="warning-icon">⚠️</span>
-            <h3>Attention!</h3>
-            <p>You have switched away from the game tab.<br>This action has been recorded by the system.</p>
-            <button class="warning-btn" onclick="closeTabWarning()">Got it, continue</button>
-        </div>
-    </div>
-
     <script>
-        const POWER_AUTOMATE_URL = 'https://default50bef10a64ce4efab7ceef7facd9c8.97.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/04/workflows/80320cf3242145f38cf2a9fe697b1bcf/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=pmVjt3_a2XgjEk7CxztVzXYwdUnHTs1Po59jq45gcyw';
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyRR9kQRpZFpdqH9_7nQh6wT5SA4Jl-nojZhaN38FmPwwIh10tjkwiSgoWEqkm2NplE/exec';
-        
+        const POWER_AUTOMATE_URL = 'https://default50bef10a64ce4efab7ceef7facd9c8.97.environment.api.powerplatform.com:443/powerautomate/automations/direct/cu/06/workflows/db051d19d6ad49db826ea17f31de68aa/triggers/manual/paths/invoke?api-version=1&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=IhZ_zFXl2whxWZMOaBP47dSJrL6xkew72NkSvNCTcO0';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyrElX954EmAhDdhbsvfcLDGN0T94X5daFDAM5Ny34sJ7acNMaH8mqNiWk5x0xk_XdI5w/exec';
         let studentName = '';
-        let roundStats = { correct: 0, incorrect: 0, total: 0 };
-        let tabSwitchCount = 0;
-        let wrongAnswers = [];
-        let isWarningShown = false;
+       let roundStats = { correct: 0, incorrect: 0, total: 0 };
+let tabSwitchCount = 0;
+let wrongAnswers = [];
+let isWarningShown = false;
         let gameStartTime = null;
+        
 
         function startGame() {
             const nameInput = document.getElementById('studentName');
@@ -343,44 +357,34 @@
         };
 
         const rawQuizData = [
-            "I ___ in the security queue for over an hour, and we still haven't reached the front.,wait,am waiting,have been waiting,3",
-            "The airport shuttle ___ from the hotel lobby every hour on the hour.,departs,is departing,has departed,1",
-            "My travel buddy ___ to pack the universal adapter! It’s so frustrating.,always forgets,is always forgetting,has always forgotten,2",
-            "We ___ four different countries this year alone.,visit,are visiting,have visited,3",
-            "This vintage leather suitcase ___ to my grandmother.,belongs,is belonging,has belonged,1",
-            "You look completely exhausted! ___ all morning?,Do you hike,Are you hiking,Have you been hiking,3",
-            "Our connecting flight to Tokyo ___ at 11:45 PM tonight.,leaves,is leaving,has left,1",
-            "I can't find my boarding pass. I think I ___ it at the café.,lose,am losing,have lost,3",
-            "The number of digital nomads in this city ___ rapidly these days.,grows,is growing,has grown,2",
-            "So far this trip, I ___ seven different local dishes.,try,am trying,have tried,3",
-            "She ___ Japanese for six months in preparation for her trip to Kyoto.,learns,is learning,has been learning,3",
-            "Water ___ at 0 degrees Celsius, which is why the pipes burst in winter.,freezes,is freezing,has frozen,1",
-            "He ___ his passport in the hotel safe! It causes so much stress.,always leaves,is always leaving,has always left,2",
-            "I ___ this tour guide since we were in university together.,know,am knowing,have known,3",
-            "This itinerary ___ a bit too ambitious for just three days.,seems,is seeming,has seemed,1",
-            "Why are your clothes so wrinkled? ___ in them on the train?,Do you sleep,Are you sleeping,Have you been sleeping,3",
-            "The new museum exhibition ___ to the public next Monday.,opens,is opening,has opened,1",
-            "We ___ our tickets for the midnight train to Prague.,just book,are just booking,have just booked,3",
-            "The local currency ___ value against the dollar these days.,loses,is losing,has lost,2",
-            "How many times ___ to South America?,do you be,are you being,have you been,3",
-            "They ___ across the country for three weeks and are finally reaching the coast.,drive,are driving,have been driving,3",
-            "A high-speed train ___ Madrid and Barcelona in under three hours.,connects,is connecting,has connected,1",
-            "My sister ___ about the legroom on budget airlines!,always complains,is always complaining,has always complained,2",
-            "I ___ my cousins since they moved to Australia last year.,don't see,am not seeing,haven't seen,3",
-            "This heavy backpack ___ exactly 23 kilograms.,weighs,is weighing,has weighed,1",
-            "My feet are killing me because I ___ around the old town all afternoon.,walk,am walking,have been walking,3",
-            "The last ferry to the island ___ at 8:00 PM sharp.,returns,is returning,has returned,1",
-            "Someone ___ my luggage from the carousel! What should I do?,steals,is stealing,has stolen,3",
-            "More and more tourists ___ eco-friendly accommodations nowadays.,choose,are choosing,have chosen,2",
-            "So far today, we ___ over 500 kilometers on the road.,cover,are covering,have covered,3"
-        ];
+    "В суффиксе прилагательного стекля___ый пишется,н,нн,ь,2",
+    "Причастие с НЕ пишется раздельно если при нем есть,зависимое слово,синоним без НЕ,приставка недо,1",
+    "В корне слова заг___рать пропущена буква,а,о,е,1",
+    "В слове пр___красный пропущена буква,е,и,я,1",
+    "В окончании глагола он стро___т пишется буква,е,и,я,1",
+    "В сложносочиненном предложении запятая перед И не ставится при наличии,общего второстепенного члена,однородных членов,вводного слова,1",
+    "Придаточное в предложении Я знаю что ты придешь является,определительным,изъяснительным,обстоятельственным,2",
+    "В предложении Я оглянулся никого не было между частями ставится,запятая,тире,двоеточие,3",
+    "Причастный оборот обособляется запятыми если стоит после,определяемого существительного,сказуемого,дополнения,1",
+    "Вводное слово к счастью на письме выделяется,запятыми,тире,скобками,1",
+    "Деепричастный оборот в предложении обособляется,всегда,никогда,только в начале,1",
+    "Грамматическая основа в предложении Мы с другом пошли в кино это,мы с другом пошли,мы пошли,друг пошел,2",
+    "Тире в бессоюзном сложном предложении ставится если первая часть указывает на,условие,причину,время,1",
+    "Двоеточие в БСП ставится если вторая часть,раскрывает содержание первой,противопоставляется первой,указывает на быструю смену событий,1",
+    "Фразеологизм бить баклуши означает,усердно работать,бездельничать,играть в музыку,2",
+    "Выражение золотые руки является примером,эпитета,метафоры,сравнения,2",
+    "Слова огонь и пламя по лексическому значению являются,антонимами,синонимами,омонимами,2",
+    "Сказуемое был врачом в предложении является,простым глагольным,составным именным,составным глагольным,2",
+    "В суффиксе действительного причастия настоящего времени от глагола клеить пишется,ущ,ющ,ащ,2",
+    "В сочетании в ___ении дня на конце пишется,е,и,о,1"
+];
 
         const quizData = rawQuizData.map(q => {
             const parts = q.split(',');
-            const correctIndex = parseInt(parts.pop()) - 1; 
+            const correctIndex = parseInt(parts.pop()); 
             const opt3 = parts.pop(); const opt2 = parts.pop(); const opt1 = parts.pop();
             const questionText = parts.join(','); 
-            return { question: questionText, options: [opt1, opt2, opt3], correct: correctIndex };
+            return { question: questionText, options: [opt1, opt2, opt3], correct: correctIndex - 1 };
         });
 
         const quiz = {
@@ -427,8 +431,8 @@
                     setTimeout(() => { this.hideModal(); if (this.resolve) this.resolve(true); }, 1500);
                 } else {
                     options[this.selectedOption].classList.add('incorrect'); options[this.currentQuestion.correct].classList.add('correct');
-                    this.showFeedback("Let's give it another try! 💪", 'incorrect'); roundStats.incorrect++; this.attemptCount++; this.updateProgress();
-                    wrongAnswers.push({ question: this.currentQuestion.question, chosen: this.currentQuestion.options[this.selectedOption], correct: this.currentQuestion.options[this.currentQuestion.correct] });
+                    this.showFeedback("Let's give it a try! 💪", 'incorrect'); roundStats.incorrect++; this.attemptCount++; this.updateProgress();
+wrongAnswers.push({ question: this.currentQuestion.question, chosen: this.currentQuestion.options[this.selectedOption], correct: this.currentQuestion.options[this.currentQuestion.correct] });
                     setTimeout(() => {
                         if (this.attemptCount < 3) { this.loadRandomQuestion(); } 
                         else { this.showFeedback('Keep practicing! 🌟 Moving on...', 'correct'); setTimeout(() => { this.hideModal(); if (this.resolve) this.resolve(true); }, 1500); }
@@ -449,9 +453,11 @@
             init() { this.renderBoard(); ui.updateLabels(); this.resetRound(); },
             async resetRound() {
                 this.board.fill(null); this.gameActive = true; this.pendingMove = null; this.currentPlayer = this.settings.firstMove;
-                ui.clearBoard(); ui.hideBanner(); 
+                ui.clearBoard(); ui.hideBanner(); ui.updateStatus(`Player ${this.currentPlayer}'s Turn`);
                 roundStats = { correct: 0, incorrect: 0, total: 0 };
-                isWarningShown = false;
+
+isWarningShown = false;
+                
                 if (this.settings.mode === 'pve' && this.currentPlayer === 'O') { await this.makeAiMove(); }
             },
             resetScores() { this.scores = { X: 0, O: 0, draw: 0 }; ui.updateScoreboard(); this.resetRound(); },
@@ -469,7 +475,7 @@
                 this.board[index] = this.currentPlayer; ui.renderCell(index, this.currentPlayer);
                 if (this.checkWin()) { this.endGame(false); } 
                 else if (this.board.every(cell => cell !== null)) { this.endGame(true); } 
-                else { this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X'; }
+                else { this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X'; ui.updateStatus(`Player ${this.currentPlayer}'s Turn`); }
             },
             checkWin() {
                 return this.winningCombos.some(combo => {
@@ -493,11 +499,11 @@
             },
             async makeAiMove() {
                 if (!this.gameActive) return;
-                await new Promise(r => setTimeout(r, 600));
+                await new Promise(r => setTimeout(r, 500));
                 let moveIndex; const difficulty = this.settings.aiDifficulty;
                 if (difficulty === 'reckless') { moveIndex = this.getRandomMove(); } 
                 else if (difficulty === 'pragmatic') {
-                    if (Math.random() < 0.3) { moveIndex = this.getRandomMove(); } else { moveIndex = this.getBestMove(); }
+                    if (Math.random() < 0.2) { moveIndex = this.getRandomMove(); } else { moveIndex = this.getBestMove(); }
                 } else { moveIndex = this.getBestMove(); }
                 this.executeMove(moveIndex); ui.disableBoard(false);
             },
@@ -574,7 +580,7 @@
             },
             updateLabels() {
                 const p1Label = document.getElementById('p1-label'); const p2Label = document.getElementById('p2-label');
-                const glyphs = { standard: { X: 'X', O: 'O' }, magic: { X: '✨', O: '🌙' }, travel: { X: '✈️', O: '🧳' } };
+                const glyphs = { standard: { X: 'X', O: 'O' }, magic: { X: '✨', O: '🌙' }, knight: { X: '⚔', O: '🛡' } };
                 const g = glyphs[game.settings.glyphs];
                 if (game.settings.mode === 'pve') { p1Label.textContent = `You (${g.X})`; p2Label.textContent = `AI (${g.O})`; } 
                 else { p1Label.textContent = `P1 (${g.X})`; p2Label.textContent = `P2 (${g.O})`; }
@@ -583,7 +589,7 @@
                 const cell = document.querySelector(`.cell[data-index='${index}']`); cell.classList.add('taken');
                 cell.setAttribute('aria-label', `Cell ${index + 1}, taken by ${player}`);
                 const span = document.createElement('span'); span.className = `glyph ${player.toLowerCase()}`;
-                const glyphs = { standard: { X: 'X', O: 'O' }, magic: { X: '✨', O: '🌙' }, travel: { X: '✈️', O: '🧳' } };
+                const glyphs = { standard: { X: 'X', O: 'O' }, magic: { X: '✨', O: '🌙' }, knight: { X: '⚔', O: '🛡' } };
                 span.textContent = glyphs[game.settings.glyphs][player]; cell.appendChild(span);
             },
             clearBoard() {
@@ -600,69 +606,98 @@
                 document.getElementById('score-x').textContent = game.scores.X;
                 document.getElementById('score-o').textContent = game.scores.O;
                 document.getElementById('score-draw').textContent = game.scores.draw;
-            }
+            },
+            updateStatus(msg) {}
         };
 
-        async function sendResultsToTeams(isDraw) {
-            const statusDiv = document.getElementById('sendingStatus');
-            statusDiv.classList.add('show');
-            statusDiv.textContent = '📤 Sending results to teacher...';
-            statusDiv.className = 'sending-status show';
+      async function sendResultsToTeams(isDraw) {
+    const statusDiv = document.getElementById('sendingStatus');
+    statusDiv.classList.add('show');
+    statusDiv.textContent = '📤 Sending results to teacher...';
+    statusDiv.className = 'sending-status show';
 
-            let resultText = isDraw ? "It's a Draw 🤝" : `Player ${game.currentPlayer === 'X' ? '✨' : '🌙'} Wins!`;
-            const exerciseName = "Present Tenses Tic Tac Toe";
-            const safeTab = tabSwitchCount || 0;
-            
-            let wrongText = 'None';
-            if (wrongAnswers.length > 0) {
-                wrongText = wrongAnswers.map((w, i) => `${i + 1}. Q: "${w.question}" | Chosen: "${w.chosen}" | Correct: "${w.correct}"`).join(' || ');
-            }
+    let resultText = '';
+    if (isDraw) {
+        resultText = "It's a Draw 🤝";
+    } else {
+        resultText = `Player ${game.currentPlayer === 'X' ? '✨' : '🌙'} Wins!`;
+    }
 
-            const payload = {
-                student_name: studentName || 'Anonymous',
-                exercise_name: exerciseName,
-                score: `${game.scores.X} : ${game.scores.O} (Draws: ${game.scores.draw})`,
-                percentage: roundStats.total > 0 ? Math.round((roundStats.correct / roundStats.total) * 100) + '%' : '0%',
-                time: new Date().toLocaleString(),
-                time_spent: gameStartTime ? Math.round((Date.now() - gameStartTime) / 1000) + ' sec' : 'N/A',
-                tab_switches: safeTab + ' switches',
-                errors_text: wrongAnswers.length > 0 ? '\n\n' + wrongAnswers.map((w, i) => (i+1) + '. ' + w.question + ' → Chosen: ' + w.chosen + ' | Correct: ' + w.correct).join('\n\n') : '✅ No errors! Perfect!'
-            };
+    const exerciseName = "Russian Language Tic Tac Toe";
 
-            try {
-                await fetch(POWER_AUTOMATE_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                statusDiv.textContent = '✅ Results sent to Teams!';
-                statusDiv.className = 'sending-status show success';
-            } catch (error) {
-                console.error('Teams error:', error);
-                statusDiv.textContent = '⚠️ Network error.';
-                statusDiv.className = 'sending-status show error';
-            }
+    // Безопасные значения
+    const safeTab = (typeof tabSwitchCount !== 'undefined') ? tabSwitchCount : 0;
+    const safeWrong = (typeof wrongAnswers !== 'undefined' && Array.isArray(wrongAnswers)) ? wrongAnswers : [];
 
-            try {
-                await fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        student_name: studentName || 'Anonymous',
-                        exercise_name: exerciseName,
-                        score: payload.score,
-                        percentage: payload.percentage,
-                        time: payload.time,
-                        time_spent: 'Game mode',
-                        tab_switches: safeTab,
-                        wrong_answers: wrongText
-                    })
-                });
-            } catch (e) { console.log('Sheets error:', e); }
+    // Список ошибок
+    let wrongText = 'None';
+    if (safeWrong.length > 0) {
+        wrongText = safeWrong.map((w, i) => {
+            return `${i + 1}. Q: "${w.question}" | Chosen: "${w.chosen}" | Correct: "${w.correct}"`;
+        }).join(' || ');
+    }
 
-            setTimeout(() => { statusDiv.classList.remove('show'); }, 5000);
+     const payload = {
+        student_name: studentName || 'Anonymous',
+        score: `${game.scores.X} : ${game.scores.O} (Draws: ${game.scores.draw})`,
+        percentage: roundStats.total > 0 ? Math.round((roundStats.correct / roundStats.total) * 100) + '%' : '0%',
+        time: new Date().toLocaleString(),
+        exercise_name: exerciseName,
+        round_result: resultText,
+        questions_answered: roundStats.total,
+        correct_answers: roundStats.correct,
+        incorrect_answers: roundStats.incorrect,
+        time_spent: (typeof gameStartTime !== 'undefined' && gameStartTime !== null) ? Math.round((Date.now() - gameStartTime) / 1000) + ' sec' : 'N/A',
+        tab_switches: safeTab + ' switches',
+        // ВОТ ГЛАВНЫЙ СЕКРЕТ ИЗ TED'S STORY:
+        errors_text: wrongAnswers.length > 0 ? '\n\n' + wrongAnswers.map((w, i) => (i+1) + '. ' + w.question + ' → Выбрано: ' + w.chosen + ' | Правильно: ' + w.correct).join('\n\n') : '✅ No errors! Perfect!'
+    };
+
+    console.log('📤 Отправляем:', payload);
+
+    try {
+        const response = await fetch(POWER_AUTOMATE_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (response.ok) {
+            statusDiv.textContent = '✅ Results sent to Teams!';
+            statusDiv.className = 'sending-status show success';
+        } else {
+            statusDiv.textContent = '⚠️ Error sending results.';
+            statusDiv.className = 'sending-status show error';
         }
+    } catch (error) {
+        console.error('❌ Teams error:', error);
+        statusDiv.textContent = '⚠️ Network error.';
+        statusDiv.className = 'sending-status show error';
+    }
+
+    try {
+        await fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+    student_name: studentName || 'Anonymous',
+    exercise_name: exerciseName,
+    score: payload.score,
+    percentage: payload.percentage,
+    time: payload.time,
+    time_spent: payload.time_spent,
+    tab_switches: safeTab,
+    errors_text: wrongText
+})
+        });
+    } catch (e) {
+        console.log('Sheets error:', e);
+    }
+
+    setTimeout(() => {
+        statusDiv.classList.remove('show');
+    }, 5000);
+}
 
         document.getElementById('mode-select').addEventListener('change', (e) => {
             document.getElementById('ai-diff-group').style.display = e.target.value === 'pve' ? 'block' : 'none';
@@ -705,26 +740,38 @@
         };
 
         starSystem.init(); confetti.init();
-        
+                // === ОТСЛЕЖИВАНИЕ ВКЛАДОК ===
         document.addEventListener('visibilitychange', function() {
             if (document.hidden) {
                 tabSwitchCount++;
+                console.log('⚠️ Переключение вкладки #' + tabSwitchCount);
             } else {
                 if (tabSwitchCount > 0 && !isWarningShown && game.gameActive) {
                     isWarningShown = true;
-                    document.getElementById('tab-switch-warning').classList.add('active');
+                    var w = document.getElementById('tab-switch-warning');
+                    if (w) w.classList.add('active');
                 }
             }
         });
 
         function closeTabWarning() {
-            document.getElementById('tab-switch-warning').classList.remove('active');
+            var w = document.getElementById('tab-switch-warning');
+            if (w) w.classList.remove('active');
             isWarningShown = false;
         }
+        // === КОНЕЦ ===
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 's' && e.ctrlKey) { e.preventDefault(); ui.openSettings(); }
         });
     </script>
+        <div id="tab-switch-warning" class="tab-warning-overlay">
+        <div class="tab-warning-box">
+            <span class="warning-icon">⚠️</span>
+            <h3>Attention!</h3>
+            <p>You have switched away from the game tab.<br>This action has been recorded by the system.</p>
+            <button class="warning-btn" onclick="closeTabWarning()">Got it, continue</button>
+        </div>
+    </div>
 </body>
 </html>
